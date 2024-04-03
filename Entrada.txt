@@ -1,0 +1,10 @@
+{
+  "texto":
+  "Imprimir{\"----------------------------\"};\n
+  Imprimir{\"|   Tu nota de OLC1  |\"};\n
+  Imprimir{\"----------------------------\"};\n
+  Evaluar{(((3*3)+4)-80+40.00*2+358.50-(29/14.50))-(0.5)+((5750*2)-11800+1.0)-10+2};\n
+  Imprimir{\"----------------------------\"};\n 
+  Evaluar{LONGITud(\"veamos si funciona\")};\n 
+  Evaluar{redondear(5/3)};"
+}
