@@ -25,9 +25,11 @@ class controller {
             ast.setConsola("")
             for (let i of ast.getInstrucciones()){
                 //agarramos instruccion por instruccion e interpretamos
+                //console.log(i)
                 var resultado = i.interpretar(ast, tabla)
-                console.log(resultado)
+                //console.log(resultado)
             }
+            console.log(tabla)
             //hasemos modificacion ast.getconsole para imprimir por medio de palabra print
             res.send({ "Respuesta": ast.getConsola() })
         } catch (err: any) {

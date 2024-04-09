@@ -17,6 +17,11 @@ export default class Arbol {
 
     public Print(contenido:any) {   //con esto decimos que el contenido sera de cualquier tipo
         //a consola si ya tiene contenido le añadimos alto de linea y añadimos contenido o si no solo añadimos
+        this.consola = `${this.consola}${contenido}`; // `` estos simbolos se sacan con la tecla al lado de la p si shift o ascii 96
+    }
+
+    public PrintLn(contenido:any) {   //con esto decimos que el contenido sera de cualquier tipo
+        //a consola si ya tiene contenido le añadimos alto de linea y añadimos contenido o si no solo añadimos
         this.consola = `${this.consola}${contenido}\n`; // `` estos simbolos se sacan con la tecla al lado de la p si shift o ascii 96
     }
 

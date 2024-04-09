@@ -4,8 +4,12 @@ const Tipo = require('./simbolo/Tipo')
 const Nativo = require('./expresiones/Nativo')
 const Aritmeticas = require('./expresiones/Aritmeticas')
 const Relacionales = require('./expresiones/Relacionales')
+const AccesoVar = require('./expresiones/AccesoVar')
 
 const Print = require('./instrucciones/Print')
+const PrintLn = require('./instrucciones/PrintLn')
+const Declaracion = require('./instrucciones/Declaracion')
+const AsignacionVar = require('./instrucciones/AsignacionVar')
 %}
 
 // analizador lexico
@@ -15,8 +19,6 @@ const Print = require('./instrucciones/Print')
 
 COMMENTUL   "//"([^\r\n]*)?                          
 COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
-LETRA       [a-zA-ZÑñ] 
-NUMID       [0-9]+  
 
 %%
 
@@ -29,12 +31,16 @@ NUMID       [0-9]+
 "true"                  return "TKTRUE";
 "false"                 return "TKFALSE";
 "pow"                   return "TKPOW";
-"imprimir"              return "TKIMPRIMIR"
+"cout"                  return "TKCOUT"
+"endl"                  return "TKENDL"
 "if"                    return "TKIF"
+"new"                   return "TKNEW"
 
 // simbolos del sistema
 "{"                     return "LLAVEI";
 "}"                     return "LLAVED";
+"["                     return "CORI";
+"]"                     return "CORD";
 ";"                     return "PUNTOCOMA"
 ","                     return "COMA"
 "+"                     return "MAS"
@@ -44,16 +50,16 @@ NUMID       [0-9]+
 "%"                     return "MOD";
 "("                     return "PARI"
 ")"                     return "PARD"
+"=="                    return "DOBIGUAL"
+"<="                    return "MENORIQ"
+">="                    return "MAYORIQ"
+"!="                    return "NOTIGUAL"
 "="                     return "IGUAL"
 "<"                     return "MENORQ"
 ">"                     return "MAYORQ"
-"<="                    return "MENORIQ"
-">="                    return "MAYORIQ"
-"=="                    return "DOBIGUAL"
-"!="                    return "NOTIGUAL"
 [0-9]+"."[0-9]+         return "DECIMAL"
 [0-9]+                  return "ENTERO"
-{LETRA}({LETRA}|{NUMID}|"_")*  return "ID"
+[a-zA-ZÑñ][a-zA-ZÑñ0-9_]*  return "ID"
 [\"]((\\\")|[^\"\n])*[\"]   {yytext=yytext.substring(1,yyleng-1); return "CADENA";}
 [\']((\\\')|[^\'\n])*[\']   {yytext=yytext.substring(1,yyleng-1); return "CARACTER";}
 
@@ -94,25 +100,42 @@ INSTRUCCIONES : INSTRUCCIONES INSTRUCCION   {$1.push($2); $$=$1;}
               | INSTRUCCION                 {$$=[$1];}
 ;
 
-// EXPRESION PUNTOCOMA            {$$=$1;}
 INSTRUCCION : DECVARIABLE PUNTOCOMA            {$$=$1;}
             | IMPRESION PUNTOCOMA              {$$=$1;}
+            | ASIGNACION PUNTOCOMA             {$$=$1;}
             | SENTIF                           {$$=$1;}
+            | DECARRAY PUNTOCOMA               {$$=$1;}
 ;
 
 //console.log("Variable declarada "+ $1 +" ID "+ $2 +" exp "+$4.interpretar());
-DECVARIABLE : TIPODATO ID IGUAL EXPRESION          {$$=$4;}
-            | TIPODATO ID
+//$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4);
+DECVARIABLE : TIPODATO DECRECURSIVA IGUAL EXPRESION   {$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4);}
+            | TIPODATO DECRECURSIVA                   {$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, null);}
 ;
 
-IMPRESION : TKIMPRIMIR PARI EXPRESION PARD          {$$ = new Print.default($3, @1.first_line, @1.first_column);}
+DECRECURSIVA : DECRECURSIVA TIPODECLARACION   {$1.push($2); $$=$1;}
+             | TIPODECLARACION                {$$=[$1];}
+;            
+
+TIPODECLARACION : COMA ID       {$$ = $2;}
+                | ID            {$$ = $1;}
 ;
 
-TIPODATO : TKINT                                      {$$ = Tipo.ENTERO ; $$ = $1 ;}
-          | TKDOUBLE                                  {$$ = Tipo.DECIMAL ; $$ = $1 ;}
-          | TKBOOL                                    {$$ = Tipo.BOOL ; $$ = $1 ;}
-          | TKCHAR                                    {$$ = Tipo.CARACTER ; $$ = $1 ;}
-          | TKSTRING                                  {$$ = Tipo.CADENA ; $$ = $1 ;}
+DECARRAY : TIPODATO ID CORI CORD IGUAL TKNEW TIPODATO CORI ENTERO CORD  {console.log("array 1 D reconnocido")}
+;
+
+ASIGNACION : ID IGUAL EXPRESION        {$$ = new AsignacionVar.default($1, $3, @1.first_line, @1.first_column);}
+;
+
+IMPRESION : TKCOUT MENORQ MENORQ EXPRESION                        {$$ = new Print.default($4, @1.first_line, @1.first_column);}
+          | TKCOUT MENORQ MENORQ EXPRESION MENORQ MENORQ TKENDL   {$$ = new PrintLn.default($4, @1.first_line, @1.first_column);}
+;
+
+TIPODATO : TKINT                                      {$$ = new Tipo.default(Tipo.tipoDato.ENTERO);}
+          | TKDOUBLE                                  {$$ = new Tipo.default(Tipo.tipoDato.DECIMAL) ;}
+          | TKBOOL                                    {$$ = new Tipo.default(Tipo.tipoDato.BOOL) ;}
+          | TKCHAR                                    {$$ = new Tipo.default(Tipo.tipoDato.CARACTER) ;}
+          | TKSTRING                                  {$$ = new Tipo.default(Tipo.tipoDato.CADENA) ;}
 ;
 
 EXPRESION : ARITMETICAS                               {$$ = $1;}
@@ -124,6 +147,7 @@ EXPRESION : ARITMETICAS                               {$$ = $1;}
           | CARACTER                                  {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.CARACTER), $1, @1.first_line, @1.first_column );}
           | TKTRUE                                    {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.BOOL), $1, @1.first_line, @1.first_column );}
           | TKFALSE                                   {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.BOOL), $1, @1.first_line, @1.first_column );}
+          | ID                                        {$$ = new AccesoVar.default($1, @1.first_line, @1.first_column );}
 ;
 
 ARITMETICAS : EXPRESION MAS EXPRESION                   {$$ = new Aritmeticas.default(Aritmeticas.Operadores.SUMA, @1.first_line, @1.first_column, $1, $3);}
@@ -143,7 +167,7 @@ RELACIONAL : EXPRESION MENORQ EXPRESION                 {$$ = new Relacionales.d
            | EXPRESION NOTIGUAL EXPRESION               {$$ = new Relacionales.default(Relacionales.Operadores.NOIGUAL, @1.first_line, @1.first_column, $1, $3);}
 ;
 
-SENTIF : TKIF PARI EXPRESION PARD LLAVEI INSTRUCCION LLAVED   {$$ = $3 ; $$ = $6}
+SENTIF : TKIF PARI EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED   {$$ = $3 ;}
 ;
 
 /*

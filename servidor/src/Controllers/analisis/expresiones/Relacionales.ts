@@ -19,7 +19,6 @@ export default class Relacionales extends Instruccion {
 
     interpretar(arbol: Arbol, tabla: tablaSimbolo) {
         let opIzq, opDer         //variables que me sirven para guardar el valor interpretado
-        console.log("1....")
         opIzq = this.operando1?.interpretar(arbol, tabla)
         if (opIzq instanceof Errores) return opIzq
         opDer = this.operando2?.interpretar(arbol, tabla)
@@ -94,7 +93,6 @@ export default class Relacionales extends Instruccion {
 
     mayorque(op1: any, op2: any) {
         //validamos que el tipo cumpla con lo requerido 
-        console.log("entro")
         let tipo1 = this.operando1?.tipoDato.getTipo()
         let tipo2 = this.operando2?.tipoDato.getTipo()
         switch (tipo1) {
@@ -104,10 +102,8 @@ export default class Relacionales extends Instruccion {
                     case tipoDato.ENTERO:
                         this.tipoDato = new Tipo(tipoDato.BOOL)
                         if (parseInt(op1) > parseInt(op2)) {
-                            console.log("si mayor")
                             return true
                         }
-                        console.log("No mayor")
                         return false
                     //case entero > decimal
                     case tipoDato.DECIMAL:

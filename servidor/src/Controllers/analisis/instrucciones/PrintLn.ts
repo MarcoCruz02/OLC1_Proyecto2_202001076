@@ -4,7 +4,7 @@ import tablaSimbolo from "../simbolo/tablaSimbolos";
 import Tipo, {tipoDato} from "../simbolo/Tipo";
 import Errores from "../excepciones/Errores";
 
-export default class Print extends Instruccion{
+export default class PrintLn extends Instruccion{
     //el contenido de print sera una expresion
     private expresion : Instruccion
 
@@ -19,7 +19,7 @@ export default class Print extends Instruccion{
         let valor = this.expresion.interpretar(arbol, tabla)
         //si valor es instancia de error retornamos el error 
         if (valor instanceof Errores) return valor
-        //si no es error
-        arbol.Print(valor)
+        //si no es error ejecutamos printLn
+        arbol.PrintLn(valor)
     }
 }
