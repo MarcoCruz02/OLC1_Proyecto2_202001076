@@ -5,11 +5,15 @@ const Nativo = require('./expresiones/Nativo')
 const Aritmeticas = require('./expresiones/Aritmeticas')
 const Relacionales = require('./expresiones/Relacionales')
 const AccesoVar = require('./expresiones/AccesoVar')
+const AccesoList = require('./expresiones/AccesoList')
+const AccesoList2D = require('./expresiones/AccesoList2D')
 
 const Print = require('./instrucciones/Print')
 const PrintLn = require('./instrucciones/PrintLn')
 const Declaracion = require('./instrucciones/Declaracion')
 const AsignacionVar = require('./instrucciones/AsignacionVar')
+const DeclaracionLista = require('./instrucciones/DeclaracionLista')
+const DeclaracionLista2D = require('./instrucciones/DeclaracionLista2D')
 %}
 
 // analizador lexico
@@ -82,10 +86,10 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 /lex
 
 //precedencias
-%left 'DOBIGUAL' 'NOTIGUAL'
-%left 'MENORQ' 'MENORIQ' 'MAYORQ' 'MAYORIQ'
+%left 'MENORQ' 'MENORIQ' 'MAYORQ' 'MAYORIQ' 'DOBIGUAL' 'NOTIGUAL'
 %left 'MAS' 'MENOS'
-%left "MULT" "DIV" "MOD"
+%left 'MULT' 'DIV' 
+%left 'MOD'
 %right 'UMENOS'
 
 // simbolo inicial
@@ -121,7 +125,13 @@ TIPODECLARACION : COMA ID       {$$ = $2;}
                 | ID            {$$ = $1;}
 ;
 
-DECARRAY : TIPODATO ID CORI CORD IGUAL TKNEW TIPODATO CORI ENTERO CORD  {console.log("array 1 D reconnocido")}
+DECARRAY : TIPODATO ID CORI CORD IGUAL TKNEW TIPODATO CORI EXPRESION CORD  {$$ = new DeclaracionLista.default($1, @1.first_line, @1.first_column, $2, null, $9);}
+         | TIPODATO ID CORI CORD IGUAL CORI ARRAYRECURSIVO CORD            {$$ = new DeclaracionLista.default($1, @1.first_line, @1.first_column, $2, $7, null);}
+         | TIPODATO ID CORI CORD CORI CORD IGUAL TKNEW TIPODATO CORI EXPRESION CORD CORI EXPRESION CORD  {$$ = new DeclaracionLista2D.default($1, @1.first_line, @1.first_column, $2, null, $11, $14);}
+;
+
+ARRAYRECURSIVO : ARRAYRECURSIVO COMA EXPRESION   {$1.push($3); $$=$1;}
+               | EXPRESION                       {$$=[$1];}
 ;
 
 ASIGNACION : ID IGUAL EXPRESION        {$$ = new AsignacionVar.default($1, $3, @1.first_line, @1.first_column);}
@@ -148,6 +158,7 @@ EXPRESION : ARITMETICAS                               {$$ = $1;}
           | TKTRUE                                    {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.BOOL), $1, @1.first_line, @1.first_column );}
           | TKFALSE                                   {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.BOOL), $1, @1.first_line, @1.first_column );}
           | ID                                        {$$ = new AccesoVar.default($1, @1.first_line, @1.first_column );}
+          | ID CORI ENTERO CORD                       {$$ = new AccesoList.default($1, @1.first_line, @1.first_column, $3 );}
 ;
 
 ARITMETICAS : EXPRESION MAS EXPRESION                   {$$ = new Aritmeticas.default(Aritmeticas.Operadores.SUMA, @1.first_line, @1.first_column, $1, $3);}
@@ -159,6 +170,7 @@ ARITMETICAS : EXPRESION MAS EXPRESION                   {$$ = new Aritmeticas.de
             | MENOS EXPRESION %prec UMENOS              {$$ = new Aritmeticas.default(Aritmeticas.Operadores.NEG, @1.first_line, @1.first_column, $2);}
 ;
 
+
 RELACIONAL : EXPRESION MENORQ EXPRESION                 {$$ = new Relacionales.default(Relacionales.Operadores.MENORQUE, @1.first_line, @1.first_column, $1, $3);}
            | EXPRESION MAYORQ EXPRESION                 {$$ = new Relacionales.default(Relacionales.Operadores.MAYORQUE, @1.first_line, @1.first_column, $1, $3);console.log("Mayor")}
            | EXPRESION MENORIQ EXPRESION                {$$ = new Relacionales.default(Relacionales.Operadores.MENORIGUALQUE, @1.first_line, @1.first_column, $1, $3);}
@@ -169,6 +181,7 @@ RELACIONAL : EXPRESION MENORQ EXPRESION                 {$$ = new Relacionales.d
 
 SENTIF : TKIF PARI EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED   {$$ = $3 ;}
 ;
+
 
 /*
 {$$ =  en jison es igual a Result = en cup}
