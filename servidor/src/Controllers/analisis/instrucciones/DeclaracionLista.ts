@@ -28,7 +28,7 @@ export default class DeclaracionLista extends Instruccion{
                         arregloVacio.fill(0);
                     }
                     if (!tabla.setLista(new Lista(this.tipoDato,this.identificador, arregloVacio, this.lenght))){
-                        return new Errores("Semantico", "Arreglo ya existe en tabla de simbolos", this.linea, this.columna)
+                        return new Errores("Semantico", "Lista ya existe en tabla de simbolos", this.linea, this.columna)
                     }  
             }
         } else {

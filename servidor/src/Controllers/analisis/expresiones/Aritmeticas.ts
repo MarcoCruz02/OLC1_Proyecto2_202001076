@@ -75,7 +75,7 @@ export default class Aritmeticas extends Instruccion {
                     case tipoDato.BOOL:
                         this.tipoDato = new Tipo(tipoDato.ENTERO)
                         let resop2: number = 1;
-                        if (op2 == "false") {
+                        if (op2 == false) {
                             resop2 = 0
                         }
                         return parseInt(op1) + resop2
@@ -105,7 +105,7 @@ export default class Aritmeticas extends Instruccion {
                     case tipoDato.BOOL:
                         this.tipoDato = new Tipo(tipoDato.DECIMAL)
                         let resop2: number = 1;
-                        if (op2 == "false") {
+                        if (op2 == false) {
                             resop2 = 0
                         }
                         return parseFloat(op1) + resop2
@@ -126,7 +126,7 @@ export default class Aritmeticas extends Instruccion {
                     case tipoDato.ENTERO:
                         this.tipoDato = new Tipo(tipoDato.ENTERO)
                         let resop1E: number = 1;
-                        if (op1 == "false") {
+                        if (op1 == false) {
                             resop1E = 0
                         }
                         return resop1E + parseInt(op2)
@@ -134,18 +134,14 @@ export default class Aritmeticas extends Instruccion {
                     case tipoDato.DECIMAL:
                         this.tipoDato = new Tipo(tipoDato.DECIMAL)
                         let resop1D: number = 1;
-                        if (op1 == "false") {
+                        if (op1 == false) {
                             resop1D = 0
                         }
                         return (resop1D + parseFloat(op2)).toFixed(2)
                     //caso booleano + cadena
                     case tipoDato.CADENA:
                         this.tipoDato = new Tipo(tipoDato.CADENA)
-                        let resop1C: number = 1;
-                        if (op1 == "false") {
-                            resop1C = 0
-                        }
-                        return String(resop1C) + String(op2)
+                        return String(op1) + String(op2)
                     default:
                         return new Errores("Semantico", "Suma Invalida", this.linea, this.columna)
                 }
@@ -162,11 +158,11 @@ export default class Aritmeticas extends Instruccion {
                     //caso caracter + caracter
                     case tipoDato.CARACTER:
                         this.tipoDato = new Tipo(tipoDato.CADENA)
-                        return String(op1.charCodeAt(0)) + String(op2.charCodeAt(0));
+                        return String(op1) + String(op2);
                     //caso caracter + cadena
                     case tipoDato.CADENA:
                         this.tipoDato = new Tipo(tipoDato.CADENA)
-                        return String(op1.charCodeAt(0)) + String(op2)
+                        return String(op1) + String(op2)
                     default:
                         return new Errores("Semantico", "Suma Invalida", this.linea, this.columna)
                 }
@@ -183,15 +179,11 @@ export default class Aritmeticas extends Instruccion {
                     //caso cadena +  booleano
                     case tipoDato.BOOL:
                         this.tipoDato = new Tipo(tipoDato.CADENA)
-                        let resop2: number = 1;
-                        if (op2 == "false") {
-                            resop2 = 0
-                        }
-                        return String(op1) + String(resop2)
+                        return String(op1) + String(op2)
                     //caso cadena + caracter
                     case tipoDato.CARACTER:
                         this.tipoDato = new Tipo(tipoDato.CADENA)
-                        return String(op1) + String(op2.charCodeAt(0));
+                        return String(op1) + String(op2);
                     //caso cadena + cadena
                     case tipoDato.CADENA:
                         this.tipoDato = new Tipo(tipoDato.CADENA)
@@ -224,7 +216,7 @@ export default class Aritmeticas extends Instruccion {
                     case tipoDato.BOOL:
                         this.tipoDato = new Tipo(tipoDato.ENTERO)
                         let resop2: number = 1;
-                        if (op2 == "false") {
+                        if (op2 == false) {
                             resop2 = 0
                         }
                         return parseInt(op1) - resop2
@@ -249,7 +241,7 @@ export default class Aritmeticas extends Instruccion {
                     case tipoDato.BOOL:
                         this.tipoDato = new Tipo(tipoDato.DECIMAL)
                         let resop2: number = 1;
-                        if (op2 == "false") {
+                        if (op2 == false) {
                             resop2 = 0
                         }
                         return parseFloat(op1) - resop2
@@ -266,7 +258,7 @@ export default class Aritmeticas extends Instruccion {
                     case tipoDato.ENTERO:
                         this.tipoDato = new Tipo(tipoDato.ENTERO)
                         let resop1E: number = 1;
-                        if (op1 == "false") {
+                        if (op1 == false) {
                             resop1E = 0
                         }
                         return resop1E - parseInt(op2)
@@ -274,7 +266,7 @@ export default class Aritmeticas extends Instruccion {
                     case tipoDato.DECIMAL:
                         this.tipoDato = new Tipo(tipoDato.DECIMAL)
                         let resop1D: number = 1;
-                        if (op1 == "false") {
+                        if (op1 == false) {
                             resop1D = 0
                         }
                         return (resop1D - parseFloat(op2)).toFixed(2)

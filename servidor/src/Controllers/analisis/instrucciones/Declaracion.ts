@@ -4,6 +4,8 @@ import Arbol from "../simbolo/Arbol";
 import Simbolo from "../simbolo/Simbolo";
 import tablaSimbolo from "../simbolo/tablaSimbolos";
 import Tipo, {tipoDato} from "../simbolo/Tipo";
+import Lista from "../simbolo/Lista";
+import Lista2D from "../simbolo/Lista2D";
 
 export default class Declaracion extends Instruccion{
     //declaramos identificador como lista para cuando se declare asi int x,y,z ...
@@ -20,6 +22,8 @@ export default class Declaracion extends Instruccion{
         if (this.valor != null){
             //primero se verifica que no sea un error
             let valorFinal = this.valor.interpretar(arbol, tabla)
+            console.log(valorFinal)
+            console.log(typeof valorFinal)
             if (valorFinal instanceof Errores) return valorFinal
             
             if (this.valor.tipoDato.getTipo() != this.tipoDato.getTipo()){

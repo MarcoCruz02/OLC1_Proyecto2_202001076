@@ -5,37 +5,37 @@ import Tipo, { tipoDato } from "../simbolo/Tipo";
 import Errores from "../excepciones/Errores";
 
 export default class Relacionales extends Instruccion {
-    private operando1: Instruccion | undefined
-    private operando2: Instruccion | undefined
-    private operacion: Operadores
+    private operando1: Instruccion 
+    private operando2: Instruccion 
+    private relacional: Relacional
 
     // al poner op2 con el signo ? estamos diciendo que este parametro es opcional de lo contrario tendriamos que escribir el constructor 2 veces uno con op2 = Instruccion y otra sin el
-    constructor(operador: Operadores, fila: number, col: number, op1: Instruccion, op2?: Instruccion) {
-        super(new Tipo(tipoDato.ENTERO), fila, col)
-        this.operacion = operador
+    constructor(Oprelacional: Relacional, fila: number, col: number, op1: Instruccion, op2: Instruccion) {
+        super(new Tipo(tipoDato.BOOL), fila, col)
+        this.relacional = Oprelacional
         this.operando1 = op1
         this.operando2 = op2
     }
 
     interpretar(arbol: Arbol, tabla: tablaSimbolo) {
         let opIzq, opDer         //variables que me sirven para guardar el valor interpretado
-        opIzq = this.operando1?.interpretar(arbol, tabla)
+        opIzq = this.operando1.interpretar(arbol, tabla)
         if (opIzq instanceof Errores) return opIzq
-        opDer = this.operando2?.interpretar(arbol, tabla)
+        opDer = this.operando2.interpretar(arbol, tabla)
         if (opDer instanceof Errores) return opDer
 
-        switch (this.operacion) {
-            case Operadores.MENORQUE:
+        switch (this.relacional) {
+            case Relacional.MENORQUE:
                 return this.menorque(opIzq, opDer)
-            case Operadores.MAYORQUE:
+            case Relacional.MAYORQUE:
                 return this.mayorque(opIzq, opDer)
-            case Operadores.MENORIGUALQUE:
+            case Relacional.MENORIGUALQUE:
                 return this.menorigualque(opIzq, opDer)
-            case Operadores.MAYORIGUALQUE:
+            case Relacional.MAYORIGUALQUE:
                 return this.mayorigualque(opIzq, opDer)
-            case Operadores.DOBLEIGUAL:
+            case Relacional.DOBLEIGUAL:
                 return this.dobleigual(opIzq, opDer)
-            case Operadores.NOIGUAL:
+            case Relacional.NOIGUAL:
                 return this.noigual(opIzq, opDer)
             default:
                 return new Errores("Semantico", "Operador Relacional Invalido", this.linea, this.columna)
@@ -338,7 +338,7 @@ export default class Relacionales extends Instruccion {
 
 }
 
-export enum Operadores {
+export enum Relacional {
     MENORQUE,
     MAYORQUE,
     MENORIGUALQUE,

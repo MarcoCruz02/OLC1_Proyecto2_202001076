@@ -33,7 +33,15 @@ export default class tablaSimbolo{
     }
 
     public getVariable(id: string) {
-        return <Simbolo>this.getTabla().get(id.toLocaleLowerCase())
+        //esto nos permitira trabajar con entornos
+        //tablasimbolo = this por que recorremos nuestra tabla actual y si no hay tabla anterior retorna null como en una lista enlazada de fin a inicio
+        for(let i: tablaSimbolo = this; i != null; i = i.getAnterior()){
+            let busqueda : Simbolo = <Simbolo> i.getTabla().get(id.toLocaleLowerCase())
+            if (busqueda != null) return busqueda
+        }
+        //aca retorno lo que encuentre en mi hash si no estuviera trabajando con entornos solo con tabla actual
+        //return <Simbolo>this.getTabla().get(id.toLocaleLowerCase())
+        return null
     }
 
     //agrega variables a tabla de simbolos

@@ -1,0 +1,41 @@
+import { Instruccion } from "../abstracto/Instruccion";
+import Errores from "../excepciones/Errores";
+import Arbol from "../simbolo/Arbol";
+import tablaSimbolo from "../simbolo/tablaSimbolos";
+import Tipo, {tipoDato} from "../simbolo/Tipo";
+
+export default class If extends Instruccion{
+    //almacena la condicion del if
+    private condicion : Instruccion  
+    //almacena todo lo que esta dentro del if esperando a verificar si se ejecuta o no
+    private instrucciones : Instruccion[]
+
+    constructor(cond : Instruccion, inst: Instruccion[], linea : number, columna: number){
+        super(new Tipo(tipoDato.VOID), linea, columna)
+        this.condicion = cond
+        this.instrucciones = inst
+    }
+
+    interpretar(arbol: Arbol, tabla: tablaSimbolo) {
+        //al estar en un if la condicion se valida en el ambito fuera de el
+        let cond = this.condicion.interpretar(arbol, tabla)
+        if (cond instanceof Errores) return cond
+
+        //validamos que la condicion sea booleana
+        if(this.condicion.tipoDato.getTipo() != tipoDato.BOOL){
+            return new Errores("Semantico","La condicion no es tipo Bool", this.linea, this.columna)
+        }
+
+        //creamos tabla para el ambito nuevo del if
+        let newTabla = new tablaSimbolo(tabla)
+        newTabla.setNombre("Entorno IF")
+
+        //si el valor interpretado es verdadero ejecutamos instrucciones de lo contrario no
+        if (cond){
+            for(let i of this.instrucciones){
+                let resultado = i.interpretar(arbol, newTabla)
+                //que pasa si i es error ..............
+            }
+        }
+    }
+}

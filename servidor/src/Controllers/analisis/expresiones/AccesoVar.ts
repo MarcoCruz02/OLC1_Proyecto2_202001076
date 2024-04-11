@@ -14,7 +14,8 @@ export default class AccesoVar extends Instruccion{
     }
 
     interpretar(arbol: Arbol, tabla: tablaSimbolo) {
-        let valorVariable: Simbolo = tabla.getVariable(this.id)
+        //casteamos con <Simbolo>
+        let valorVariable: Simbolo = <Simbolo> tabla.getVariable(this.id)
         if (valorVariable == null) return new Errores("Semantico", "Acceso a varible invalido", this.linea, this.columna)
         //este tipo es para siempre estar verificando el tipo que estamos obteniendo de lo contrario sera tipo void
         this.tipoDato = valorVariable.getTipo()

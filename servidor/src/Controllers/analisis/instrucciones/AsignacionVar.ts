@@ -21,13 +21,13 @@ export default class AsignacionVar extends Instruccion{
         if (newValor instanceof Errores) return newValor
 
         //verificamos que a la variable a la que se le va a signar exista
-        let valor = tabla.getVariable(this.id.toLocaleLowerCase())
-        if (valor == null) return new Errores("Semantico", "Variable no existente", this.linea, this.columna)
+        let valorL2D = tabla.getVariable(this.id.toLocaleLowerCase())
+        if (valorL2D == null) return new Errores("Semantico", "Variable no existente", this.linea, this.columna)
         
         //validamos que sea del mismo tipo
-        if(this.expresion.tipoDato.getTipo() != valor.getTipo().getTipo()) return new Errores("Semantico", "Asignacion erronea no coinciden los tipos", this.linea, this.columna)
+        if(this.expresion.tipoDato.getTipo() != valorL2D.getTipo().getTipo()) return new Errores("Semantico", "Asignacion erronea no coinciden los tipos", this.linea, this.columna)
         
-        this.tipoDato = valor.getTipo()
-        valor.setValor(newValor)
+        this.tipoDato = valorL2D.getTipo()
+        valorL2D.setValor(newValor)
     }
 }
