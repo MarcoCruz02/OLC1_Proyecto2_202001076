@@ -16,6 +16,10 @@ const DeclaracionLista = require('./instrucciones/DeclaracionLista')
 const DeclaracionLista2D = require('./instrucciones/DeclaracionLista2D')
 const AsignacionList2D = require('./instrucciones/AsignacionList2D')
 const If = require('./instrucciones/If')
+const While = require('./instrucciones/While')
+const Dowhile = require('./instrucciones/Dowhile')
+const Break = require('./instrucciones/Break')
+
 %}
 
 // analizador lexico
@@ -41,6 +45,9 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 "endl"                  return "TKENDL"
 "if"                    return "TKIF"
 "new"                   return "TKNEW"
+"while"                 return "TKWHILE"
+"break"                 return "TKBREAK"
+"do"                    return "TKDO"
 
 // simbolos del sistema
 "{"                     return "LLAVEI";
@@ -56,6 +63,7 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 "%"                     return "MOD";
 "("                     return "PARI"
 ")"                     return "PARD"
+//los simbolos dobles <= se ponen antes que los libres < , = para que el reconocimiento no se quede en los libres solamente 
 "=="                    return "DOBIGUAL"
 "<="                    return "MENORIQ"
 ">="                    return "MAYORIQ"
@@ -112,7 +120,10 @@ INSTRUCCION : DECVARIABLE PUNTOCOMA            {$$=$1;}
             | SENTIF                           {$$=$1;}
             | DECARRAY PUNTOCOMA               {$$=$1;}
             | ASIGNLISTA2D PUNTOCOMA           {$$=$1;}
-;
+            | SENTWHILE                        {$$=$1;}
+            | SENTDOWHILE                      {$$=$1;}
+            | SENTBREAK                        {$$=$1;}
+; 
 
 //console.log("Variable declarada "+ $1 +" ID "+ $2 +" exp "+$4.interpretar());
 //$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4);
@@ -179,7 +190,7 @@ ARITMETICAS : EXPRESION MAS EXPRESION                   {$$ = new Aritmeticas.de
 
 
 RELACIONAL : EXPRESION MENORQ EXPRESION                 {$$ = new Relacionales.default(Relacionales.Relacional.MENORQUE, @1.first_line, @1.first_column, $1, $3);}
-           | EXPRESION MAYORQ EXPRESION                 {$$ = new Relacionales.default(Relacionales.Relacional.MAYORQUE, @1.first_line, @1.first_column, $1, $3);console.log("Mayor")}
+           | EXPRESION MAYORQ EXPRESION                 {$$ = new Relacionales.default(Relacionales.Relacional.MAYORQUE, @1.first_line, @1.first_column, $1, $3);}
            | EXPRESION MENORIQ EXPRESION                {$$ = new Relacionales.default(Relacionales.Relacional.MENORIGUALQUE, @1.first_line, @1.first_column, $1, $3);}
            | EXPRESION MAYORIQ EXPRESION                {$$ = new Relacionales.default(Relacionales.Relacional.MAYORIGUALQUE, @1.first_line, @1.first_column, $1, $3);}
            | EXPRESION DOBIGUAL EXPRESION               {$$ = new Relacionales.default(Relacionales.Relacional.DOBLEIGUAL, @1.first_line, @1.first_column, $1, $3);}
@@ -189,6 +200,14 @@ RELACIONAL : EXPRESION MENORQ EXPRESION                 {$$ = new Relacionales.d
 SENTIF : TKIF PARI EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED   {$$ = new If.default($3, $6, @1.first_line, @1.first_column);}
 ;
 
+SENTWHILE : TKWHILE PARI EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED   {$$ = new While.default($3, $6, @1.first_line, @1.first_column);}
+;
+
+SENTBREAK : TKBREAK PUNTOCOMA                      {$$ = new Break.default(@1.first_line, @1.first_column);}
+;
+
+SENTDOWHILE : TKDO LLAVEI INSTRUCCIONES LLAVED TKWHILE PARI EXPRESION PARD  {$$ = new Dowhile.default($7, $3, @1.first_line, @1.first_column);}
+;
 
 /*
 {$$ =  en jison es igual a Result = en cup}

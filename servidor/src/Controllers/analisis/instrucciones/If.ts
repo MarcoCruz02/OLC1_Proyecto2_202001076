@@ -3,6 +3,7 @@ import Errores from "../excepciones/Errores";
 import Arbol from "../simbolo/Arbol";
 import tablaSimbolo from "../simbolo/tablaSimbolos";
 import Tipo, {tipoDato} from "../simbolo/Tipo";
+import Break from "./Break";
 
 export default class If extends Instruccion{
     //almacena la condicion del if
@@ -28,14 +29,27 @@ export default class If extends Instruccion{
 
         //creamos tabla para el ambito nuevo del if
         let newTabla = new tablaSimbolo(tabla)
-        newTabla.setNombre("Entorno IF")
+        newTabla.setNombre("Sentencia IF")
 
         //si el valor interpretado es verdadero ejecutamos instrucciones de lo contrario no
         if (cond){
             for(let i of this.instrucciones){
+                //dentro de el if tambien puede venir un break para detener en caso este pertenezca a un ciclo
+                if(i instanceof Break) return i;    //si dentro del if viene un break retorno el break
                 let resultado = i.interpretar(arbol, newTabla)
                 //que pasa si i es error ..............
             }
         }
     }
 }
+
+/*
+ejempo de un break dentro de un if dentro de un ciclo
+while(){
+    if(){
+        break:
+        console.log("hola")
+    }
+}
+en este caso el break para antes del cosole para revidar si este pertenece a un ciclo
+*/ 
