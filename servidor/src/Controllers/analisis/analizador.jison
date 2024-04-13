@@ -7,6 +7,7 @@ const Relacionales = require('./expresiones/Relacionales')
 const AccesoVar = require('./expresiones/AccesoVar')
 const AccesoList = require('./expresiones/AccesoList')
 const AccesoList2D = require('./expresiones/AccesoList2D')
+const AccesoIncDec= require('./expresiones/AccesoIncDec')
 
 const Print = require('./instrucciones/Print')
 const PrintLn = require('./instrucciones/PrintLn')
@@ -18,6 +19,7 @@ const AsignacionList2D = require('./instrucciones/AsignacionList2D')
 const If = require('./instrucciones/If')
 const While = require('./instrucciones/While')
 const Dowhile = require('./instrucciones/Dowhile')
+const For = require('./instrucciones/For')
 const Break = require('./instrucciones/Break')
 
 %}
@@ -28,9 +30,12 @@ const Break = require('./instrucciones/Break')
 %options case-insensitive
 
 COMMENTUL   "//"([^\r\n]*)?                          
-COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
+COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/] 
 
 %%
+//comentarios ha ignorar
+{COMMENTUL}             {}  
+{COMMENTML}             {}  
 
 //palabras reservadas
 "int"                   return "TKINT";
@@ -48,6 +53,7 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 "while"                 return "TKWHILE"
 "break"                 return "TKBREAK"
 "do"                    return "TKDO"
+"for"                   return "TKFOR"
 
 // simbolos del sistema
 "{"                     return "LLAVEI";
@@ -56,6 +62,8 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 "]"                     return "CORD";
 ";"                     return "PUNTOCOMA"
 ","                     return "COMA"
+"++"                    return "INCREMENTO"
+"--"                    return "DECREMENTO"
 "+"                     return "MAS"
 "-"                     return "MENOS"
 "*"                     return "MULT";
@@ -77,9 +85,6 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 [\"]((\\\")|[^\"\n])*[\"]   {yytext=yytext.substring(1,yyleng-1); return "CADENA";}
 [\']((\\\')|[^\'\n])*[\']   {yytext=yytext.substring(1,yyleng-1); return "CARACTER";}
 
-//comentarios
-{COMMENTUL}      {}
-{COMMENTML}      {}     
 
 //blancos
 [\ \r\t\f\t]+           {}
@@ -123,6 +128,7 @@ INSTRUCCION : DECVARIABLE PUNTOCOMA            {$$=$1;}
             | SENTWHILE                        {$$=$1;}
             | SENTDOWHILE                      {$$=$1;}
             | SENTBREAK                        {$$=$1;}
+            | SENTFOR                          {$$=$1;}
 ; 
 
 //console.log("Variable declarada "+ $1 +" ID "+ $2 +" exp "+$4.interpretar());
@@ -177,6 +183,8 @@ EXPRESION : ARITMETICAS                               {$$ = $1;}
           | ID                                        {$$ = new AccesoVar.default($1, @1.first_line, @1.first_column );}
           | ID CORI ENTERO CORD                       {$$ = new AccesoList.default($1, @1.first_line, @1.first_column, $3 );}
           | ID CORI ENTERO CORD CORI ENTERO CORD      {$$ = new AccesoList2D.default($1, @1.first_line, @1.first_column, $3, $6 );}
+          | ID INCREMENTO                             {$$ = new AccesoIncDec.default($1, "++", @1.first_line, @1.first_column );}
+          | ID DECREMENTO                             {$$ = new AccesoIncDec.default($1, "--", @1.first_line, @1.first_column );}
 ;
 
 ARITMETICAS : EXPRESION MAS EXPRESION                   {$$ = new Aritmeticas.default(Aritmeticas.Operadores.SUMA, @1.first_line, @1.first_column, $1, $3);}
@@ -201,6 +209,10 @@ SENTIF : TKIF PARI EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED   {$$ = new If.def
 ;
 
 SENTWHILE : TKWHILE PARI EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED   {$$ = new While.default($3, $6, @1.first_line, @1.first_column);}
+;
+
+SENTFOR : TKFOR PARI DECVARIABLE PUNTOCOMA EXPRESION PUNTOCOMA EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED {$$ = new For.default($3, $5, $7, $10, @1.first_line, @1.first_column); console.log("ent 1");}
+        | TKFOR PARI ASIGNACION PUNTOCOMA EXPRESION PUNTOCOMA EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED  {$$ = new For.default($3, $5, $7, $10, @1.first_line, @1.first_column); console.log("ent 2");}
 ;
 
 SENTBREAK : TKBREAK PUNTOCOMA                      {$$ = new Break.default(@1.first_line, @1.first_column);}

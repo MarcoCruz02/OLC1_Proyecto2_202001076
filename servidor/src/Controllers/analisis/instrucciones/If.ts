@@ -37,6 +37,8 @@ export default class If extends Instruccion{
                 //dentro de el if tambien puede venir un break para detener en caso este pertenezca a un ciclo
                 if(i instanceof Break) return i;    //si dentro del if viene un break retorno el break
                 let resultado = i.interpretar(arbol, newTabla)
+                //validacion si viene in if dentro de otro y se debe retornar el break
+                if (resultado instanceof Break) return resultado
                 //que pasa si i es error ..............
             }
         }

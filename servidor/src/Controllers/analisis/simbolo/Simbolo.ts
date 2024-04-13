@@ -6,9 +6,9 @@ export default class Simbolo{
     private id : string
     private valor : any
 
-    constructor (tipo:Tipo, id:string, valor:any){
+    constructor (tipo:Tipo, id:string, valor?:any){
         this.tipo = tipo
-        this.id = id
+        this.id = id.toLocaleLowerCase()
         this.valor = valor
     }
 
@@ -29,7 +29,7 @@ export default class Simbolo{
         this.id = id
     }
 
-    public getValor(): Tipo{
+    public getValor(){
         return this.valor
     }
 

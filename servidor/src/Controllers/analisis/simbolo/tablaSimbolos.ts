@@ -11,7 +11,7 @@ export default class tablaSimbolo{
 
     constructor(anterior?:tablaSimbolo){
         this.tabAnterior = anterior
-        this.tabActual = new Map<string, Simbolo>()
+        this.tabActual = new Map<string, Simbolo | Lista | Lista2D>()
         this.nombre = ""
     }
 

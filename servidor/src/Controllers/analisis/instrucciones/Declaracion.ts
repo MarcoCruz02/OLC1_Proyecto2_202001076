@@ -22,8 +22,8 @@ export default class Declaracion extends Instruccion{
         if (this.valor != null){
             //primero se verifica que no sea un error
             let valorFinal = this.valor.interpretar(arbol, tabla)
-            console.log(valorFinal)
-            console.log(typeof valorFinal)
+            //console.log(valorFinal)
+            //console.log(typeof valorFinal)
             if (valorFinal instanceof Errores) return valorFinal
             
             if (this.valor.tipoDato.getTipo() != this.tipoDato.getTipo()){
