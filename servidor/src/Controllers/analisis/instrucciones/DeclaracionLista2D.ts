@@ -25,7 +25,7 @@ export default class DeclaracionLista2D extends Instruccion{
         if (this.valor == null) {
             switch (this.tipoDato.getTipo()) {
                case tipoDato.ENTERO:
-                    console.log("crea lista de listas sin datos")
+                    //console.log("crea lista de listas sin datos")
                     //declaramos lista2dvacia de tipo lista de listas asignandole tamaño con row y column y seteandole valores 0
                     let lista2dvacia: number[][] = Array.from(Array(this.row), () => Array(this.column));
                     if (!tabla.setLista2D(new Lista2D(this.tipoDato, this.identificador, lista2dvacia, this.row, this.column))){

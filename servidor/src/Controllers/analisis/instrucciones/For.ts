@@ -4,10 +4,8 @@ import tablaSimbolo from "../simbolo/tablaSimbolos";
 import Tipo, { tipoDato } from "../simbolo/Tipo";
 import Errores from "../excepciones/Errores";
 import Break from "./Break";
-import Declaracion from "./Declaracion";
-import AsignacionVar from "./AsignacionVar";
 
-export default class Dowhile extends Instruccion{
+export default class For extends Instruccion{
     private declaracionAsignacion : Instruccion
     private condicion : Instruccion
     private actualizacion : Instruccion
@@ -72,3 +70,4 @@ for(j = 2; j<5 ; j++){
     cout<< "funcion for" <<endl;
 }
 */
+

@@ -21,6 +21,8 @@ const While = require('./instrucciones/While')
 const Dowhile = require('./instrucciones/Dowhile')
 const For = require('./instrucciones/For')
 const Break = require('./instrucciones/Break')
+const Switch = require('./instrucciones/Switch')
+const Case = require('./instrucciones/Case')
 
 %}
 
@@ -49,11 +51,15 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 "cout"                  return "TKCOUT"
 "endl"                  return "TKENDL"
 "if"                    return "TKIF"
+"switch"                return "TKSWITCH"
+"case"                  return "TKCASE"
+"default"               return "TKDEFAULT"
 "new"                   return "TKNEW"
 "while"                 return "TKWHILE"
 "break"                 return "TKBREAK"
 "do"                    return "TKDO"
 "for"                   return "TKFOR"
+"else"                  return "TKELSE"
 
 // simbolos del sistema
 "{"                     return "LLAVEI";
@@ -123,13 +129,22 @@ INSTRUCCION : DECVARIABLE PUNTOCOMA            {$$=$1;}
             | IMPRESION PUNTOCOMA              {$$=$1;}
             | ASIGNACION PUNTOCOMA             {$$=$1;}
             | SENTIF                           {$$=$1;}
-            | DECARRAY PUNTOCOMA               {$$=$1;}
             | ASIGNLISTA2D PUNTOCOMA           {$$=$1;}
+            | DECARRAY PUNTOCOMA               {$$=$1;}
             | SENTWHILE                        {$$=$1;}
             | SENTDOWHILE                      {$$=$1;}
             | SENTBREAK                        {$$=$1;}
             | SENTFOR                          {$$=$1;}
+            //| SENTSWITCH                       {$$=$1; console.log("lo detecta");}
+            | error                            {$$=$1; console.log("error1");}
 ; 
+
+
+SENTSWITCH : TKSWITCH PARI EXPRESION PARD LLAVEI SENTCASE LLAVED  {$$ = new Switch.default($3, $6, @1.first_line, @1.first_column); console.log("ent switch")}
+;
+
+SENTCASE : TKCASE EXPRESION DOSPUNTOS INSTRUCCIONES           {$$ = new Case.default($2, $4, @1.first_line, @1.first_column);}
+;
 
 //console.log("Variable declarada "+ $1 +" ID "+ $2 +" exp "+$4.interpretar());
 //$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4);
@@ -180,11 +195,11 @@ EXPRESION : ARITMETICAS                               {$$ = $1;}
           | CARACTER                                  {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.CARACTER), $1, @1.first_line, @1.first_column );}
           | TKTRUE                                    {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.BOOL), true, @1.first_line, @1.first_column );}
           | TKFALSE                                   {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.BOOL), false, @1.first_line, @1.first_column );}
-          | ID                                        {$$ = new AccesoVar.default($1, @1.first_line, @1.first_column );}
-          | ID CORI ENTERO CORD                       {$$ = new AccesoList.default($1, @1.first_line, @1.first_column, $3 );}
           | ID CORI ENTERO CORD CORI ENTERO CORD      {$$ = new AccesoList2D.default($1, @1.first_line, @1.first_column, $3, $6 );}
+          | ID CORI ENTERO CORD                       {$$ = new AccesoList.default($1, @1.first_line, @1.first_column, $3 );}
           | ID INCREMENTO                             {$$ = new AccesoIncDec.default($1, "++", @1.first_line, @1.first_column );}
           | ID DECREMENTO                             {$$ = new AccesoIncDec.default($1, "--", @1.first_line, @1.first_column );}
+          | ID                                        {$$ = new AccesoVar.default($1, @1.first_line, @1.first_column );}
 ;
 
 ARITMETICAS : EXPRESION MAS EXPRESION                   {$$ = new Aritmeticas.default(Aritmeticas.Operadores.SUMA, @1.first_line, @1.first_column, $1, $3);}
@@ -205,8 +220,14 @@ RELACIONAL : EXPRESION MENORQ EXPRESION                 {$$ = new Relacionales.d
            | EXPRESION NOTIGUAL EXPRESION               {$$ = new Relacionales.default(Relacionales.Relacional.NOIGUAL, @1.first_line, @1.first_column, $1, $3);}
 ;
 
-SENTIF : TKIF PARI EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED   {$$ = new If.default($3, $6, @1.first_line, @1.first_column);}
+SENTIF : TKIF PARI EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED           {$$ = new If.default($3, $6, null, @1.first_line, @1.first_column);}
+       | TKIF PARI EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED SENTELSE  {$$ = new If.default($3, $6, $8, @1.first_line, @1.first_column);}
 ;
+
+SENTELSE : TKELSE TKIF                           {let ArreIf = []; ArreIf.push($2); $$ = ArreIf;}
+         | TKELSE LLAVEI INSTRUCCIONES LLAVED    {$$ = $3;}
+;
+
 
 SENTWHILE : TKWHILE PARI EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED   {$$ = new While.default($3, $6, @1.first_line, @1.first_column);}
 ;

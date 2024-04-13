@@ -2,19 +2,22 @@ import { Instruccion } from "../abstracto/Instruccion";
 import Errores from "../excepciones/Errores";
 import Arbol from "../simbolo/Arbol";
 import tablaSimbolo from "../simbolo/tablaSimbolos";
-import Tipo, {tipoDato} from "../simbolo/Tipo";
 import Break from "./Break";
+import Tipo, {tipoDato} from "../simbolo/Tipo";
 
-export default class If extends Instruccion{
+export default class If extends Instruccion {
     //almacena la condicion del if
-    private condicion : Instruccion  
+    private condicion: Instruccion
     //almacena todo lo que esta dentro del if esperando a verificar si se ejecuta o no
-    private instrucciones : Instruccion[]
+    private instrucciones: Instruccion[]
+    private instrucciones2: Instruccion[]
 
-    constructor(cond : Instruccion, inst: Instruccion[], linea : number, columna: number){
+
+    constructor(cond: Instruccion, inst: Instruccion[],instSec:Instruccion[], linea: number, columna: number) {
         super(new Tipo(tipoDato.VOID), linea, columna)
         this.condicion = cond
         this.instrucciones = inst
+        this.instrucciones2=instSec
     }
 
     interpretar(arbol: Arbol, tabla: tablaSimbolo) {
@@ -23,24 +26,33 @@ export default class If extends Instruccion{
         if (cond instanceof Errores) return cond
 
         //validamos que la condicion sea booleana
-        if(this.condicion.tipoDato.getTipo() != tipoDato.BOOL){
-            return new Errores("Semantico","La condicion no es tipo Bool", this.linea, this.columna)
+        if (this.condicion.tipoDato.getTipo() != tipoDato.BOOL) {
+            return new Errores("Semantico", "La condicion debe ser bool", this.linea, this.columna)
         }
 
         //creamos tabla para el ambito nuevo del if
         let newTabla = new tablaSimbolo(tabla)
-        newTabla.setNombre("Sentencia IF")
+        newTabla.setNombre("Sentencia If")
 
         //si el valor interpretado es verdadero ejecutamos instrucciones de lo contrario no
-        if (cond){
-            for(let i of this.instrucciones){
+        if (cond) {
+            for (let i of this.instrucciones) {
                 //dentro de el if tambien puede venir un break para detener en caso este pertenezca a un ciclo
-                if(i instanceof Break) return i;    //si dentro del if viene un break retorno el break
+                if (i instanceof Break) return i;    //si dentro del if viene un break directo retorno el break
                 let resultado = i.interpretar(arbol, newTabla)
                 //validacion si viene in if dentro de otro y se debe retornar el break
                 if (resultado instanceof Break) return resultado
-                //que pasa si i es error ..............
             }
+        }else{
+        //si no toma la instruccion secundaria
+            if(this.instrucciones2){
+                for (let i of this.instrucciones2) {
+                    if (i instanceof Break) return i;    //si dentro del if viene un break retorno el break
+                    let resultado = i.interpretar(arbol, newTabla)
+                    //validacion si viene in if dentro de otro y se debe retornar el break
+                    if (resultado instanceof Break) return resultado
+                }
+            }  
         }
     }
 }

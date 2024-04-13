@@ -36,9 +36,9 @@ export default class Lista2D {
     }
 
     public setValor(valor: any, posicion1: number, posicion2: number) {
-        console.log(valor)
+        //console.log(valor)
         this.valor[posicion1][posicion2] = valor
-        console.log(this.valor)
+        //console.log(this.valor)
     }  
 
 }

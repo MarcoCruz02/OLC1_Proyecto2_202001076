@@ -30,8 +30,6 @@ export default class Lista {
     }
 
     public getValor(posicion: number) {
-        //console.log(this.valor[posicion].valor)
-        console.log("posicion")
         return this.valor[posicion].valor
     }
 
