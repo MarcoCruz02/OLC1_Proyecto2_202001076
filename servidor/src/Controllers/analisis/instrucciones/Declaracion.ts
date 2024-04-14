@@ -27,6 +27,9 @@ export default class Declaracion extends Instruccion{
             if (valorFinal instanceof Errores) return valorFinal
             
             if (this.valor.tipoDato.getTipo() != this.tipoDato.getTipo()){
+                console.log("-> "+this.valor.tipoDato.getTipo())
+                console.log("-> "+this.tipoDato.getTipo())
+                console.log("No es posible declarar variable")
                 return new Errores("Semantico", "No es posible declarar variable", this.linea, this.columna)
             }
             //si ya se verifico que el valor no es un error y los tipos coinciden, ya se puede declarar

@@ -13,6 +13,7 @@ const AccesoIncDec= require('./expresiones/AccesoIncDec')
 const Print = require('./instrucciones/Print')
 const PrintLn = require('./instrucciones/PrintLn')
 const Declaracion = require('./instrucciones/Declaracion')
+const Ternario = require('./instrucciones/Ternario')
 const AsignacionVar = require('./instrucciones/AsignacionVar')
 const DeclaracionLista = require('./instrucciones/DeclaracionLista')
 const DeclaracionLista2D = require('./instrucciones/DeclaracionLista2D')
@@ -90,6 +91,7 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 "="                     return "IGUAL"
 "<"                     return "MENORQ"
 ">"                     return "MAYORQ"
+"?"                     return "INTERROGACION"
 [0-9]+"."[0-9]+         return "DECIMAL"
 [0-9]+                  return "ENTERO"
 [a-zA-ZÑñ][a-zA-ZÑñ0-9_]*  return "ID"
@@ -112,6 +114,7 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 /lex
 
 //precedencias
+%left 'INTERROGACION'
 %left 'OR'
 %left 'AND'
 %right 'NOT'
@@ -157,7 +160,7 @@ SENTCASE : TKCASE EXPRESION DOSPUNTOS INSTRUCCIONES           {$$ = new Case.def
 
 //console.log("Variable declarada "+ $1 +" ID "+ $2 +" exp "+$4.interpretar());
 //$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4);
-DECVARIABLE : TIPODATO DECRECURSIVA IGUAL EXPRESION   {$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4);}
+DECVARIABLE : TIPODATO DECRECURSIVA IGUAL EXPRESION   {$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4); console.log("dec var")}
             | TIPODATO DECRECURSIVA                   {$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, null);}
 ;
 
@@ -199,6 +202,7 @@ EXPRESION : ARITMETICAS                               {$$ = $1;}
           | RELACIONAL                                {$$ = $1;}
           | LOGICAS                                   {$$ = $1;}
           | PARI EXPRESION PARD                       {$$ = $2;}
+          | TERNARIO                                  {$$ = $1;}
           | ENTERO                                    {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.ENTERO), $1, @1.first_line, @1.first_column );}
           | DECIMAL                                   {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.DECIMAL), $1, @1.first_line, @1.first_column );}
           | CADENA                                    {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.CADENA), $1, @1.first_line, @1.first_column );}
@@ -233,6 +237,9 @@ RELACIONAL : EXPRESION MENORQ EXPRESION                 {$$ = new Relacionales.d
 LOGICAS : EXPRESION OR EXPRESION                        {$$ = new Logicos.default(Logicos.Logico.OR, @1.first_line, @1.first_column, $1, $3);}
         | EXPRESION AND EXPRESION                       {$$ = new Logicos.default(Logicos.Logico.AND, @1.first_line, @1.first_column, $1, $3);}
         | NOT EXPRESION                                 {$$ = new Logicos.default(Logicos.Logico.NOT, @1.first_line, @1.first_column, $2);}
+;
+
+TERNARIO : EXPRESION INTERROGACION EXPRESION DOSPUNTOS EXPRESION        {$$ = new Ternario.default($1, $3, $5, @1.first_line, @1.first_column);}
 ;
 
 SENTIF : TKIF PARI EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED           {$$ = new If.default($3, $6, null, @1.first_line, @1.first_column);}
