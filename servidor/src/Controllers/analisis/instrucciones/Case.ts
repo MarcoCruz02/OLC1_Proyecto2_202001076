@@ -5,26 +5,30 @@ import Tipo, { tipoDato } from "../simbolo/Tipo";
 import Errores from "../excepciones/Errores";
 import Break from "./Break";
 
-export default class Case extends Instruccion {
+export default class Case extends Instruccion{
     public condicion: Instruccion
     public instrucciones: Instruccion[]
 
-    constructor(cond: Instruccion, ins: Instruccion[], linea: number, columna: number) {
+    constructor(condCase:Instruccion,instCase: Instruccion[], linea : number, columna : number){
         super(new Tipo(tipoDato.VOID), linea, columna)
-        this.condicion = cond;
-        this.instrucciones = ins;
+        this.condicion = condCase
+        this.instrucciones = instCase
     }
 
     interpretar(arbol: Arbol, tabla: tablaSimbolo) {
-        let cond = this.condicion.interpretar(arbol, tabla)
-        if (cond instanceof Errores) return cond
-
-        //validamos que la condicion sea booleana
-        if (this.condicion.tipoDato.getTipo() != tipoDato.BOOL) {
-            return new Errores("Semantico", "La condicion debe ser bool", this.linea, this.columna)
+        let a :any|null
+        for(let elemento of this.instrucciones){
+            a = elemento.interpretar(arbol,tabla);
+            if(a!=null) return a;
+            //si la instruccion es break retornamos
+            if (elemento instanceof Break) return elemento;
+            //caso si viene un break dentro de un cilo en el case
+            if (a instanceof Break) return a
         }
+    }  
 
-
+    public getCondCase(arbol: Arbol, tabla: tablaSimbolo){
+        return this.condicion.interpretar(arbol,tabla)
     }
 }
 

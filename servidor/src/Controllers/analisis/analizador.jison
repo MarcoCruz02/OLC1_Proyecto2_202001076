@@ -4,6 +4,7 @@ const Tipo = require('./simbolo/Tipo')
 const Nativo = require('./expresiones/Nativo')
 const Aritmeticas = require('./expresiones/Aritmeticas')
 const Relacionales = require('./expresiones/Relacionales')
+const Logicos = require('./expresiones/Logicos')
 const AccesoVar = require('./expresiones/AccesoVar')
 const AccesoList = require('./expresiones/AccesoList')
 const AccesoList2D = require('./expresiones/AccesoList2D')
@@ -67,6 +68,7 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 "["                     return "CORI";
 "]"                     return "CORD";
 ";"                     return "PUNTOCOMA"
+":"                     return "DOSPUNTOS"
 ","                     return "COMA"
 "++"                    return "INCREMENTO"
 "--"                    return "DECREMENTO"
@@ -82,6 +84,9 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 "<="                    return "MENORIQ"
 ">="                    return "MAYORIQ"
 "!="                    return "NOTIGUAL"
+"||"                    return "OR"
+"&&"                    return "AND"
+"!"                     return "NOT"
 "="                     return "IGUAL"
 "<"                     return "MENORQ"
 ">"                     return "MAYORQ"
@@ -107,6 +112,9 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 /lex
 
 //precedencias
+%left 'OR'
+%left 'AND'
+%right 'NOT'
 %left 'MENORQ' 'MENORIQ' 'MAYORQ' 'MAYORIQ' 'DOBIGUAL' 'NOTIGUAL'
 %left 'MAS' 'MENOS'
 %left 'MULT' 'DIV' 
@@ -135,16 +143,17 @@ INSTRUCCION : DECVARIABLE PUNTOCOMA            {$$=$1;}
             | SENTDOWHILE                      {$$=$1;}
             | SENTBREAK                        {$$=$1;}
             | SENTFOR                          {$$=$1;}
-            //| SENTSWITCH                       {$$=$1; console.log("lo detecta");}
-            | error                            {$$=$1; console.log("error1");}
+            | SENTSWITCH                       {$$=$1;}
+            //| error                            {$$=$1; console.log("error1");}
 ; 
 
-
+/*
 SENTSWITCH : TKSWITCH PARI EXPRESION PARD LLAVEI SENTCASE LLAVED  {$$ = new Switch.default($3, $6, @1.first_line, @1.first_column); console.log("ent switch")}
 ;
 
 SENTCASE : TKCASE EXPRESION DOSPUNTOS INSTRUCCIONES           {$$ = new Case.default($2, $4, @1.first_line, @1.first_column);}
 ;
+*/
 
 //console.log("Variable declarada "+ $1 +" ID "+ $2 +" exp "+$4.interpretar());
 //$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4);
@@ -188,6 +197,7 @@ TIPODATO : TKINT                                      {$$ = new Tipo.default(Tip
 
 EXPRESION : ARITMETICAS                               {$$ = $1;}
           | RELACIONAL                                {$$ = $1;}
+          | LOGICAS                                   {$$ = $1;}
           | PARI EXPRESION PARD                       {$$ = $2;}
           | ENTERO                                    {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.ENTERO), $1, @1.first_line, @1.first_column );}
           | DECIMAL                                   {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.DECIMAL), $1, @1.first_line, @1.first_column );}
@@ -220,6 +230,11 @@ RELACIONAL : EXPRESION MENORQ EXPRESION                 {$$ = new Relacionales.d
            | EXPRESION NOTIGUAL EXPRESION               {$$ = new Relacionales.default(Relacionales.Relacional.NOIGUAL, @1.first_line, @1.first_column, $1, $3);}
 ;
 
+LOGICAS : EXPRESION OR EXPRESION                        {$$ = new Logicos.default(Logicos.Logico.OR, @1.first_line, @1.first_column, $1, $3);}
+        | EXPRESION AND EXPRESION                       {$$ = new Logicos.default(Logicos.Logico.AND, @1.first_line, @1.first_column, $1, $3);}
+        | NOT EXPRESION                                 {$$ = new Logicos.default(Logicos.Logico.NOT, @1.first_line, @1.first_column, $2);}
+;
+
 SENTIF : TKIF PARI EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED           {$$ = new If.default($3, $6, null, @1.first_line, @1.first_column);}
        | TKIF PARI EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED SENTELSE  {$$ = new If.default($3, $6, $8, @1.first_line, @1.first_column);}
 ;
@@ -241,6 +256,22 @@ SENTBREAK : TKBREAK PUNTOCOMA                      {$$ = new Break.default(@1.fi
 
 SENTDOWHILE : TKDO LLAVEI INSTRUCCIONES LLAVED TKWHILE PARI EXPRESION PARD  {$$ = new Dowhile.default($7, $3, @1.first_line, @1.first_column);}
 ;
+
+SENTSWITCH : TKSWITCH PARI EXPRESION PARD LLAVEI RECURSIVIDADSWITCH SENTDEFAULT LLAVED {$$ = new Switch.default($3, $6, $7, @1.first_line, @1.first_column);}
+           | TKSWITCH PARI EXPRESION PARD LLAVEI SENTDEFAULT LLAVED {$$ = new Switch.default($3, null, $6, @1.first_line, @1.first_column);}
+;
+
+RECURSIVIDADSWITCH : RECURSIVIDADSWITCH SENTCASE   {$1.push($2); $$=$1;}
+                   | SENTCASE                      {$$=[$1];}
+;
+
+SENTCASE : TKCASE EXPRESION DOSPUNTOS INSTRUCCIONES     {$$ = new Case.default($2, $4, @1.first_line, @1.first_column);}
+;
+
+SENTDEFAULT : TKDEFAULT DOSPUNTOS INSTRUCCIONES         {$$= $3;}
+            |   {$$= null;}
+;
+
 
 /*
 {$$ =  en jison es igual a Result = en cup}
