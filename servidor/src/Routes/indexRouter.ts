@@ -11,6 +11,7 @@ class router {
         this.router.get('/', indexController.prueba);
         //this.router.post('/post', indexController.metodoPost);
         this.router.post('/interpretar', indexController.interpretar);
+        this.router.post('/mostrarErrores', indexController.mostrarErrores);
     }
 }
 

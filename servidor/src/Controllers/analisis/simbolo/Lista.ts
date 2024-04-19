@@ -30,11 +30,19 @@ export default class Lista {
     }
 
     public getValor(posicion: number) {
-        return this.valor[posicion].valor
+        if ( this.lenght > posicion){
+            //console.log(this.valor[posicion])
+            return this.valor[posicion]
+        }
+        console.log("fuera de rango en lista ")
+        //return this.valor[posicion]
     }
 
-    public setValor(valor: any[]) {
-        this.valor = valor
+    public setValor(valor: any[], posicion : number) {
+        if ( this.lenght > posicion ){
+            this.valor[posicion] = valor
+        }
+        //this.valor = valor
     }
     
     public getLenght() {

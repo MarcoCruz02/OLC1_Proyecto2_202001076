@@ -2,9 +2,11 @@ import { useEffect, useState, useRef } from "react"
 import './App.css';
 import Editor from '@monaco-editor/react';
 
+
 function App() {
   const editorRef = useRef(null);
   const consolaRef = useRef(null);
+  const [arrErrores, setArregloErrores] = useState([]);
 
   function handleEditorDidMount(editor, id) {
     //aca se almacena la informacion de cada editor 
@@ -13,6 +15,67 @@ function App() {
     } else if (id === "consola") {
       consolaRef.current = editor;
     }
+  }
+
+  const mostrarHTMLErrores = () => {
+    reporteErrores();
+    const reporteHTMLErrores = `
+      <html>
+        <head>
+          <title>Reporte de Errores</title>
+        </head>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Error Type</th>
+              <th>Description</th>
+              <th>Row</th>
+              <th>Column</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${arrErrores.map((element, index) => (
+              <tr key={index}>
+                <td>{index}</td>
+                <td>{element.tipoError}</td>
+                <td>{element.desc}</td>
+                <td>{element.fila}</td>
+                <td>{element.col}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </html>
+    `;
+
+    const nuevaVentana = window.open("", "_blank");
+    nuevaVentana.document.open();
+    nuevaVentana.document.write(reporteHTMLErrores);
+    nuevaVentana.document.close();
+  };
+
+  function reporteErrores() {
+    fetch("http://localhost:4000/mostrarErrores", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+    })
+      .then(response => response.json())
+      .then(data => {
+      setArregloErrores(data.ArregloErrores);
+
+        console.log(data.ArregloErrores)
+        console.log("Arreglo de errores")
+        console.log(arrErrores);
+
+      })
+      .catch((error) => {
+        alert("Error al generar el reporte de errores.");
+        console.error("Error:", error);
+      });
   }
 
   function interpretar() {
@@ -45,6 +108,49 @@ function App() {
   }
   //<input type="button" value="Interpretar" id="btnCargar" class="form-control form-control-lg" onClick={interpretar} />
   return (
+    <div className="App">
+      <div className="background-color: #F0F8FF p-2 text-white bg-opacity-75">
+        <div className='text-center style="color: #F8F9FA;'>
+          <h1>Proyecto 2 - OLC1</h1>
+        </div>
+        <br></br>
+        <div className='text-center'>
+          <div className="container">
+            <div className="row">
+              <input type="file" id="file" className="form-control form-control-lg" onChange={CargarArchivo} />
+            </div>
+            <br></br>
+            <div className="row">
+              <input type="button" value="Interpretar" id="btnCargar" className="btn btn-outline-secondary" onClick={interpretar} />
+              <input type="button" value="Error" id="btnCargar" className="btn btn-outline-secondary" onClick={mostrarHTMLErrores} />
+            </div>
+          </div>
+        </div>
+        <br></br>
+        <div className='text-center style={{ height: "80%", width: "80%" }} '>
+          <div className="container" >
+            <div className="row">
+              <div className="col">
+                <p>Entrada</p>
+                <Editor height="90vh" defaultLanguage="java" defaultValue="" theme="vs-dark" onMount={(editor) => handleEditorDidMount(editor, "editor")} />
+              </div>
+              <div className="col">
+                <p>Consola</p>
+                <Editor height="90vh" defaultLanguage="cpp" defaultValue="" theme="vs-dark" options={{ readOnly: true }} onMount={(editor) => handleEditorDidMount(editor, "consola")} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+
+
+/*
+return (
     <div className="App">
       <div class="background-color: #F0F8FF p-2 text-white bg-opacity-75">
         <div class='text-center style="color: #F8F9FA;'>
@@ -82,5 +188,4 @@ function App() {
     </div>
   );
 }
-
-export default App;
+*/

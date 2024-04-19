@@ -27,6 +27,7 @@ export default class If extends Instruccion {
 
         //validamos que la condicion sea booleana
         if (this.condicion.tipoDato.getTipo() != tipoDato.BOOL) {
+            //console.log("entra err bool")
             return new Errores("Semantico", "La condicion debe ser bool", this.linea, this.columna)
         }
 
@@ -35,6 +36,7 @@ export default class If extends Instruccion {
         newTabla.setNombre("Sentencia If")
 
         //si el valor interpretado es verdadero ejecutamos instrucciones de lo contrario no
+        //console.log(cond)
         if (cond) {
             for (let i of this.instrucciones) {
                 //dentro de el if tambien puede venir un break para detener en caso este pertenezca a un ciclo

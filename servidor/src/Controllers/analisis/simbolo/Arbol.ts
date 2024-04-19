@@ -7,12 +7,14 @@ export default class Arbol {
     private consola : string
     private tabGlobal : tablaSimbolo
     private errores : Array <Errores>
+    public contador : number
 
     constructor(instrucciones: Array<Instruccion>){
         this.instrucciones = instrucciones
         this.consola = ""
         this.tabGlobal = new tablaSimbolo()
         this.errores = new Array<Errores>
+        this.contador = 0
     }
 
     public Print(contenido:any) {   //con esto decimos que el contenido sera de cualquier tipo
@@ -52,4 +54,11 @@ export default class Arbol {
     public getErrores(): any {
         return this.errores
     }
+
+    public getContador(): number{
+        this.contador++;
+        return this.contador
+    }
 }
+
+//1111111

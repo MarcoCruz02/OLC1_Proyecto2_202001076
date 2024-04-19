@@ -1,4 +1,5 @@
 import Tipo from './Tipo'
+import Errores from '../excepciones/Errores'
 
 export default class Lista2D {
     private tipo: Tipo
@@ -32,13 +33,27 @@ export default class Lista2D {
     }
 
     public getValor(posicion1: number, posicion2: number) {
-        return this.valor[posicion1][posicion2]
+        //console.log(this.row)
+        //console.log(this.column)
+        //console.log("--------------")
+        if (  this.row > posicion1 &&   this.column > posicion2){
+            console.log(this.valor[posicion1][posicion2])
+            return this.valor[posicion1][posicion2]
+        }
+        console.log("fuera de rango en lista de 2 dimensiones")
     }
 
     public setValor(valor: any, posicion1: number, posicion2: number) {
         //console.log(valor)
-        this.valor[posicion1][posicion2] = valor
-        //console.log(this.valor)
-    }  
+        //console.log(posicion1)
+        //console.log(posicion2)
+        //console.log("--------------")
+        if (  this.row > posicion1  &&  this.column > posicion2){
+            //console.log(this.valor.length)
+            //console.log(this.valor[0]?.length)
+            this.valor[posicion1][posicion2] = valor
+            //console.log("asignacion 2d realizada")
+        }
+    }
 
 }

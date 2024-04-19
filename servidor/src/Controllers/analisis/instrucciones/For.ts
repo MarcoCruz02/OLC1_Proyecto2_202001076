@@ -71,3 +71,37 @@ for(j = 2; j<5 ; j++){
 }
 */
 
+/*
+//prueba con ordenamiento burbuja
+int arreglo[] = [2,3,5,4,6,8,1,7];
+
+int n = 8;
+for (int i = 0; i < n-1 ; i++) {
+    for (int j = 0; j < n - i - 1 ; j++) {
+         // Compara elementos adyacentes
+         if (arreglo[j] > arreglo[j + 1]) {
+            // Intercambia si el elemento actual es mayor que el siguiente
+            int temp = arreglo[j];
+            arreglo[j] = arreglo[j + 1];
+            arreglo[j + 1] = temp;
+        }
+    }
+}
+int b = arreglo[0];
+cout << b <<endl;
+b = arreglo[1];
+cout << b <<endl;
+b = arreglo[2];
+cout << b <<endl;
+b = arreglo[3];
+cout << b <<endl;
+b = arreglo[4];
+cout << b <<endl;
+b = arreglo[5];
+cout << b <<endl;
+b = arreglo[6];
+cout << b <<endl;
+b = arreglo[7];
+cout << b <<endl;
+*/
+

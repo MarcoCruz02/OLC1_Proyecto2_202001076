@@ -56,7 +56,11 @@ export default class tablaSimbolo{
     
     //obtenemos lista
     public getLista(id : string){
-        return <Lista>this.getTabla().get(id.toLocaleLowerCase())
+        for(let i: tablaSimbolo = this; i != null; i = i.getAnterior()){
+            let busqueda : Lista = <Lista> i.getTabla().get(id.toLocaleLowerCase())
+            if (busqueda != null) return busqueda
+        }
+        //return <Lista>this.getTabla().get(id.toLocaleLowerCase())
     }
 
     //agregamos listas a tabla de simbolos
@@ -71,7 +75,11 @@ export default class tablaSimbolo{
 
     //obtenemos lista2D
     public getLista2D(id : string){
-        return <Lista2D>this.getTabla().get(id.toLocaleLowerCase())
+        for(let i: tablaSimbolo = this; i != null; i = i.getAnterior()){
+            let busqueda : Lista2D = <Lista2D> i.getTabla().get(id.toLocaleLowerCase())
+            if (busqueda != null) return busqueda
+        }
+        //return <Lista2D>this.getTabla().get(id.toLocaleLowerCase())
     }
 
     //agregamos listas2D a tabla de simbolos

@@ -17,6 +17,7 @@ const Ternario = require('./instrucciones/Ternario')
 const AsignacionVar = require('./instrucciones/AsignacionVar')
 const DeclaracionLista = require('./instrucciones/DeclaracionLista')
 const DeclaracionLista2D = require('./instrucciones/DeclaracionLista2D')
+const AsignacionList = require('./instrucciones/AsignacionList')
 const AsignacionList2D = require('./instrucciones/AsignacionList2D')
 const If = require('./instrucciones/If')
 const While = require('./instrucciones/While')
@@ -25,6 +26,7 @@ const For = require('./instrucciones/For')
 const Break = require('./instrucciones/Break')
 const Switch = require('./instrucciones/Switch')
 const Case = require('./instrucciones/Case')
+const FuncionalidadesEspeciales = require('./instrucciones/FuncionalidadesEspeciales')
 
 %}
 
@@ -62,6 +64,13 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 "do"                    return "TKDO"
 "for"                   return "TKFOR"
 "else"                  return "TKELSE"
+"tolower"               return "TKTOLOWER"
+"toupper"               return "TKTOUPPER"
+"round"                 return "TKROUND"
+"length"                return "TKLENGHT"
+"typeof"                return "TKTYPEOF"
+"std::toString"         return "TKTOSTRING"
+"c_str"                 return "TKCSTR"
 
 // simbolos del sistema
 "{"                     return "LLAVEI";
@@ -71,6 +80,7 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 ";"                     return "PUNTOCOMA"
 ":"                     return "DOSPUNTOS"
 ","                     return "COMA"
+"."                     return "PUNTO"
 "++"                    return "INCREMENTO"
 "--"                    return "DECREMENTO"
 "+"                     return "MAS"
@@ -141,6 +151,7 @@ INSTRUCCION : DECVARIABLE PUNTOCOMA            {$$=$1;}
             | ASIGNACION PUNTOCOMA             {$$=$1;}
             | SENTIF                           {$$=$1;}
             | ASIGNLISTA2D PUNTOCOMA           {$$=$1;}
+            | ASIGNLISTA PUNTOCOMA             {$$=$1;}
             | DECARRAY PUNTOCOMA               {$$=$1;}
             | SENTWHILE                        {$$=$1;}
             | SENTDOWHILE                      {$$=$1;}
@@ -160,7 +171,7 @@ SENTCASE : TKCASE EXPRESION DOSPUNTOS INSTRUCCIONES           {$$ = new Case.def
 
 //console.log("Variable declarada "+ $1 +" ID "+ $2 +" exp "+$4.interpretar());
 //$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4);
-DECVARIABLE : TIPODATO DECRECURSIVA IGUAL EXPRESION   {$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4); console.log("dec var")}
+DECVARIABLE : TIPODATO DECRECURSIVA IGUAL EXPRESION   {$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4);}
             | TIPODATO DECRECURSIVA                   {$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, null);}
 ;
 
@@ -172,16 +183,25 @@ TIPODECLARACION : COMA ID       {$$ = $2;}
                 | ID            {$$ = $1;}
 ;
 
-DECARRAY : TIPODATO ID CORI CORD IGUAL TKNEW TIPODATO CORI EXPRESION CORD  {$$ = new DeclaracionLista.default($1, @1.first_line, @1.first_column, $2, null, $9);}
-         | TIPODATO ID CORI CORD IGUAL CORI ARRAYRECURSIVO CORD            {$$ = new DeclaracionLista.default($1, @1.first_line, @1.first_column, $2, $7, null);}
+DECARRAY : TIPODATO ID CORI CORD IGUAL TKNEW TIPODATO CORI EXPRESION CORD     {$$ = new DeclaracionLista.default($1, @1.first_line, @1.first_column, $2, null, $9);}
+         | TIPODATO ID CORI CORD IGUAL CORI ARRAYRECURSIVO CORD               {$$ = new DeclaracionLista.default($1, @1.first_line, @1.first_column, $2, $7, null);}
+         | TIPODATO ID CORI CORD IGUAL EXPRESION                              {$$ = new DeclaracionLista.default($1, @1.first_line, @1.first_column, $2, $6, null);}
          | TIPODATO ID CORI CORD CORI CORD IGUAL TKNEW TIPODATO CORI EXPRESION CORD CORI EXPRESION CORD  {$$ = new DeclaracionLista2D.default($1, @1.first_line, @1.first_column, $2, null, $11, $14);}
+         | TIPODATO ID CORI CORD CORI CORD IGUAL CORI ARRAY2DRECURSIVO CORD   {$$ = new DeclaracionLista2D.default($1, @1.first_line, @1.first_column, $2, $9, null, null);}
 ;
 
-ASIGNLISTA2D : ID CORI ENTERO CORD CORI ENTERO CORD IGUAL EXPRESION  {$$ = new AsignacionList2D.default($1, $9, @1.first_line, @1.first_column, $3, $6);}
+ASIGNLISTA2D : ID CORI EXPRESION CORD CORI EXPRESION CORD IGUAL EXPRESION  {$$ = new AsignacionList2D.default($1, $9, @1.first_line, @1.first_column, $3, $6);}
+;
+
+ASIGNLISTA : ID CORI EXPRESION CORD IGUAL EXPRESION  {$$ = new AsignacionList.default($1, $6, @1.first_line, @1.first_column, $3);}
 ;
 
 ARRAYRECURSIVO : ARRAYRECURSIVO COMA EXPRESION   {$1.push($3); $$=$1;}
                | EXPRESION                       {$$=[$1];}
+;
+
+ARRAY2DRECURSIVO : ARRAY2DRECURSIVO COMA CORI ARRAYRECURSIVO CORD  {$1.push($4); $$=$1;}
+                 | CORI ARRAYRECURSIVO CORD                        {$$=[$2];}
 ;
 
 ASIGNACION : ID IGUAL EXPRESION        {$$ = new AsignacionVar.default($1, $3, @1.first_line, @1.first_column);}
@@ -209,11 +229,30 @@ EXPRESION : ARITMETICAS                               {$$ = $1;}
           | CARACTER                                  {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.CARACTER), $1, @1.first_line, @1.first_column );}
           | TKTRUE                                    {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.BOOL), true, @1.first_line, @1.first_column );}
           | TKFALSE                                   {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.BOOL), false, @1.first_line, @1.first_column );}
-          | ID CORI ENTERO CORD CORI ENTERO CORD      {$$ = new AccesoList2D.default($1, @1.first_line, @1.first_column, $3, $6 );}
-          | ID CORI ENTERO CORD                       {$$ = new AccesoList.default($1, @1.first_line, @1.first_column, $3 );}
+          //| ID CORI ENTERO CORD CORI ENTERO CORD      {$$ = new AccesoList2D.default($1, @1.first_line, @1.first_column, $3, $6 );}
+          //| ID CORI ID CORD CORI ID CORD              {$$ = new AccesoList2D.default($1, @1.first_line, @1.first_column, $3, $6 );}
+          | ACCESOLISTA2D                             {$$ = $1;}
+          | ACCESOLISTA                               {$$ = $1;}
+          //| ID CORI ENTERO CORD                       {$$ = new AccesoList.default($1, @1.first_line, @1.first_column, $3 );}
           | ID INCREMENTO                             {$$ = new AccesoIncDec.default($1, "++", @1.first_line, @1.first_column );}
           | ID DECREMENTO                             {$$ = new AccesoIncDec.default($1, "--", @1.first_line, @1.first_column );}
           | ID                                        {$$ = new AccesoVar.default($1, @1.first_line, @1.first_column );}
+          | TKTOLOWER PARI EXPRESION PARD             {$$ = new FuncionalidadesEspeciales.default($1, $3, @1.first_line, @1.first_column );}
+          | TKTOUPPER PARI EXPRESION PARD             {$$ = new FuncionalidadesEspeciales.default($1, $3, @1.first_line, @1.first_column );}
+          | TKROUND PARI EXPRESION PARD               {$$ = new FuncionalidadesEspeciales.default($1, $3, @1.first_line, @1.first_column );}
+          | ID PUNTO TKLENGHT PARI PARD               {$$ = new FuncionalidadesEspeciales.default($3, $1, @1.first_line, @1.first_column );}
+          | CADENA PUNTO TKLENGHT PARI PARD           {$$ = new FuncionalidadesEspeciales.default($3, $1, @1.first_line, @1.first_column );}
+          | TKTYPEOF PARI ID PARD                     {$$ = new FuncionalidadesEspeciales.default($1, $3, @1.first_line, @1.first_column );}
+          | TKTOSTRING PARI EXPRESION PARD            {$$ = new FuncionalidadesEspeciales.default($1, $3, @1.first_line, @1.first_column );}
+          | ID PUNTO TKCSTR PARI PARD                 {$$ = $1}
+          //{$$ = new FuncionalidadesEspeciales.default($3, $1, @1.first_line, @1.first_column );}
+
+;
+
+ACCESOLISTA2D : ID CORI EXPRESION CORD CORI EXPRESION CORD  {$$ = new AccesoList2D.default($1, @1.first_line, @1.first_column, $3, $6 );}
+;
+
+ACCESOLISTA : ID CORI EXPRESION CORD          {$$ = new AccesoList.default($1, @1.first_line, @1.first_column, $3 );}
 ;
 
 ARITMETICAS : EXPRESION MAS EXPRESION                   {$$ = new Aritmeticas.default(Aritmeticas.Operadores.SUMA, @1.first_line, @1.first_column, $1, $3);}
@@ -254,8 +293,8 @@ SENTELSE : TKELSE TKIF                           {let ArreIf = []; ArreIf.push($
 SENTWHILE : TKWHILE PARI EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED   {$$ = new While.default($3, $6, @1.first_line, @1.first_column);}
 ;
 
-SENTFOR : TKFOR PARI DECVARIABLE PUNTOCOMA EXPRESION PUNTOCOMA EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED {$$ = new For.default($3, $5, $7, $10, @1.first_line, @1.first_column); console.log("ent 1");}
-        | TKFOR PARI ASIGNACION PUNTOCOMA EXPRESION PUNTOCOMA EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED  {$$ = new For.default($3, $5, $7, $10, @1.first_line, @1.first_column); console.log("ent 2");}
+SENTFOR : TKFOR PARI DECVARIABLE PUNTOCOMA EXPRESION PUNTOCOMA EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED {$$ = new For.default($3, $5, $7, $10, @1.first_line, @1.first_column); }
+        | TKFOR PARI ASIGNACION PUNTOCOMA EXPRESION PUNTOCOMA EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED  {$$ = new For.default($3, $5, $7, $10, @1.first_line, @1.first_column); }
 ;
 
 SENTBREAK : TKBREAK PUNTOCOMA                      {$$ = new Break.default(@1.first_line, @1.first_column);}
