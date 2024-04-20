@@ -24,9 +24,13 @@ const While = require('./instrucciones/While')
 const Dowhile = require('./instrucciones/Dowhile')
 const For = require('./instrucciones/For')
 const Break = require('./instrucciones/Break')
+const Return = require('./instrucciones/Return')
 const Switch = require('./instrucciones/Switch')
 const Case = require('./instrucciones/Case')
 const FuncionalidadesEspeciales = require('./instrucciones/FuncionalidadesEspeciales')
+const Metodo = require('./instrucciones/Metodo')
+const Execute = require('./instrucciones/Execute')
+const Llamada = require('./instrucciones/Llamada')
 
 %}
 
@@ -61,6 +65,7 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 "new"                   return "TKNEW"
 "while"                 return "TKWHILE"
 "break"                 return "TKBREAK"
+"return"                return "TKRETURN"
 "do"                    return "TKDO"
 "for"                   return "TKFOR"
 "else"                  return "TKELSE"
@@ -71,6 +76,8 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 "typeof"                return "TKTYPEOF"
 "std::toString"         return "TKTOSTRING"
 "c_str"                 return "TKCSTR"
+"execute"               return "TKEXECUTE"
+"void"                  return "TKVOID"
 
 // simbolos del sistema
 "{"                     return "LLAVEI";
@@ -155,9 +162,15 @@ INSTRUCCION : DECVARIABLE PUNTOCOMA            {$$=$1;}
             | DECARRAY PUNTOCOMA               {$$=$1;}
             | SENTWHILE                        {$$=$1;}
             | SENTDOWHILE                      {$$=$1;}
+            | SENTRETURN                       {$$=$1;}
             | SENTBREAK                        {$$=$1;}
             | SENTFOR                          {$$=$1;}
             | SENTSWITCH                       {$$=$1;}
+            | METODO                           {$$=$1;}
+            | EXECUTE PUNTOCOMA                {$$=$1;}
+            | LLAMADA PUNTOCOMA                {$$=$1;}
+            | ID INCREMENTO PUNTOCOMA          {$$ = new AccesoIncDec.default($1, "++", @1.first_line, @1.first_column );}
+            | ID DECREMENTO PUNTOCOMA          {$$ = new AccesoIncDec.default($1, "--", @1.first_line, @1.first_column );}
             //| error                            {$$=$1; console.log("error1");}
 ; 
 
@@ -173,6 +186,7 @@ SENTCASE : TKCASE EXPRESION DOSPUNTOS INSTRUCCIONES           {$$ = new Case.def
 //$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4);
 DECVARIABLE : TIPODATO DECRECURSIVA IGUAL EXPRESION   {$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4);}
             | TIPODATO DECRECURSIVA                   {$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, null);}
+            //| TIPODATO DECRECURSIVA IGUAL LLAMADA     {$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4);console.log("entra ret llamada");}
 ;
 
 DECRECURSIVA : DECRECURSIVA TIPODECLARACION   {$1.push($2); $$=$1;}
@@ -216,6 +230,28 @@ TIPODATO : TKINT                                      {$$ = new Tipo.default(Tip
           | TKBOOL                                    {$$ = new Tipo.default(Tipo.tipoDato.BOOL) ;}
           | TKCHAR                                    {$$ = new Tipo.default(Tipo.tipoDato.CARACTER) ;}
           | TKSTRING                                  {$$ = new Tipo.default(Tipo.tipoDato.CADENA) ;}
+          | TKVOID                                    {$$ = new Tipo.default(Tipo.tipoDato.VOID) ;}
+;
+
+METODO : TIPODATO ID PARI PARAMS PARD LLAVEI INSTRUCCIONES LLAVED  {$$ = new Metodo.default($2, $1, $7, @1.first_line, @1.first_column, $4);}
+       | TIPODATO ID PARI PARD LLAVEI INSTRUCCIONES LLAVED         {$$ = new Metodo.default($2, $1, $6, @1.first_line, @1.first_column, []);}
+;
+
+//como no vienen parametros por default en funciones no fue necesario hacer una clase params solo pasar tupla tipo,id
+PARAMS : PARAMS COMA TIPODATO ID      {$1.push({tipo:$3, id:$4}); $$=$1;} 
+       | TIPODATO ID                  {$$ = [{tipo: $1 , id: [$2]}];} 
+;
+
+EXECUTE : TKEXECUTE ID PARI PARAMSCALL PARD   {$$ = new Execute.default($2, @1.first_line, @1.first_column, $4);}
+        | TKEXECUTE ID PARI PARD              {$$ = new Execute.default($2, @1.first_line, @1.first_column, []);}
+;
+
+LLAMADA : ID PARI PARAMSCALL PARD             {$$ = new Llamada.default($1, @1.first_line, @1.first_column, $3);}
+        | ID PARI PARI                        {$$ = new Llamada.default($1, @1.first_line, @1.first_column, []);}
+;
+
+PARAMSCALL : PARAMSCALL COMA EXPRESION      {$1.push($3); $$ = $1;}
+           | EXPRESION                      {$$ = [$1];}
 ;
 
 EXPRESION : ARITMETICAS                               {$$ = $1;}
@@ -223,6 +259,7 @@ EXPRESION : ARITMETICAS                               {$$ = $1;}
           | LOGICAS                                   {$$ = $1;}
           | PARI EXPRESION PARD                       {$$ = $2;}
           | TERNARIO                                  {$$ = $1;}
+          | SENTRETURN                                {$$ = $1;}
           | ENTERO                                    {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.ENTERO), $1, @1.first_line, @1.first_column );}
           | DECIMAL                                   {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.DECIMAL), $1, @1.first_line, @1.first_column );}
           | CADENA                                    {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.CADENA), $1, @1.first_line, @1.first_column );}
@@ -298,6 +335,10 @@ SENTFOR : TKFOR PARI DECVARIABLE PUNTOCOMA EXPRESION PUNTOCOMA EXPRESION PARD LL
 ;
 
 SENTBREAK : TKBREAK PUNTOCOMA                      {$$ = new Break.default(@1.first_line, @1.first_column);}
+;
+
+SENTRETURN : TKRETURN EXPRESION PUNTOCOMA          {$$ = new Return.default($2, null, @1.first_line, @1.first_column);}
+           | TKRETURN PUNTOCOMA                    {$$ = new Break.default(@1.first_line, @1.first_column);}
 ;
 
 SENTDOWHILE : TKDO LLAVEI INSTRUCCIONES LLAVED TKWHILE PARI EXPRESION PARD  {$$ = new Dowhile.default($7, $3, @1.first_line, @1.first_column);}

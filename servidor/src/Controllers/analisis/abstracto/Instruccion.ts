@@ -20,7 +20,7 @@ export abstract class Instruccion {
     abstract interpretar(arbol: Arbol, tabla: tablaSimbolo): any
 
     //generamos grafico ast
-    //abstract generarAST(anterior: string, arbol: Arbol): string
+    //abstract getAST(anterior: string): string
 
 
 }

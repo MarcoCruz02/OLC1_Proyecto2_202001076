@@ -1,5 +1,6 @@
 import { Instruccion } from "../abstracto/Instruccion";
 import Arbol from "../simbolo/Arbol";
+import Contador from "../simbolo/Contador";
 import tablaSimbolo from "../simbolo/tablaSimbolos";
 import Tipo, { tipoDato } from "../simbolo/Tipo";
 import { Guid } from "guid-typescript/dist/guid";
@@ -24,15 +25,14 @@ export default class Nativo extends Instruccion {
     }*/
 
     //identify: string = Guid.create().toString().replace(/-/gm, ""); //identificador unico para el nodo
-    generarAST(anterior:string , arbol:Arbol): string {
-        //con cada llamada a .getcontador el id aumenta 
-        let id1 = arbol.getContador()
-        let id2 = arbol.getContador()
-        let cadena = `n${id1}[label="Nativo"];\n`
-        cadena+= `n${id2}[label="${this.valor}"];\n`
-        cadena+= `n${id1} -> n${id2};\n`
-        cadena+= `${anterior} -> n${id1};\n`
-        return cadena;
-        
+    getAST(anterior:string ): string {
+        let contador = Contador.getInstancia()
+        let nodoNativo = `n${contador.get()}`
+        let nodoValor = `n${contador.get()}`
+        let resultado = `n${nodoNativo}[label = \"Nativo\"];\n`
+        resultado += `n${nodoValor}[label = \"${this.valor}\"];\n`
+        resultado += `n${nodoNativo}[label = \"${this.valor}\"];\n`
+        resultado += `n${anterior}[label = \"${this.valor}\"];\n`
+        return resultado
     }
 }

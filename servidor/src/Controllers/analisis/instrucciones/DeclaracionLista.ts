@@ -91,7 +91,7 @@ export default class DeclaracionLista extends Instruccion {
                     }
                 case tipoDato.CARACTER:
                     let valorVarcstr: Simbolo = <Simbolo>tabla.getVariable(String(this.valor))
-                    if (valorVarcstr != null) {
+                    if (valorVarcstr != null) {  //para el caso que sea la funcion especial c_str
                         let mycadena: string = valorVarcstr.getValor();
                         //console.log("entra cstr")
                         let charactersArray: string[] = mycadena.split('');

@@ -10,9 +10,9 @@ import Lista2D from "../simbolo/Lista2D";
 export default class Declaracion extends Instruccion{
     //declaramos identificador como lista para cuando se declare asi int x,y,z ...
     private identificador : string[]
-    private valor : Instruccion
+    private valor : Instruccion | undefined
 
-    constructor(tipo:Tipo, linea:number, columna: number, id : string[], valor : Instruccion){
+    constructor(tipo:Tipo, linea:number, columna: number, id : string[], valor? : Instruccion){
         super(tipo, linea, columna)
         this.identificador = id
         this.valor = valor
@@ -21,7 +21,7 @@ export default class Declaracion extends Instruccion{
     interpretar(arbol: Arbol, tabla: tablaSimbolo) {
         if (this.valor != null){
             //primero se verifica que no sea un error
-            let valorFinal = this.valor.interpretar(arbol, tabla)
+            let valorFinal = this.valor?.interpretar(arbol, tabla)
             //console.log(valorFinal)
             //console.log(typeof valorFinal)
             if (valorFinal instanceof Errores) return valorFinal
@@ -30,10 +30,11 @@ export default class Declaracion extends Instruccion{
                 //console.log("-> "+this.valor.tipoDato.getTipo())
                 //console.log("-> "+this.tipoDato.getTipo())
                 //console.log("No es posible declarar variable")
-                return new Errores("Semantico", "No es posible declarar variable", this.linea, this.columna)
+                return new Errores("Semantico", "No es posible declarar variable tipos no coinciden", this.linea, this.columna)
             }
             //si ya se verifico que el valor no es un error y los tipos coinciden, ya se puede declarar
             //ahora que es una lista debemos recorrerla para declarar y almacenar ids
+            //console.log(this.identificador)
             this.identificador.forEach(identificadorActual => {   
                 if (!tabla.setVariable(new Simbolo(this.tipoDato, identificadorActual, valorFinal))){
                     return new Errores("Semantico", "No es posible declarar variable por que ya existe", this.linea, this.columna)
@@ -63,7 +64,7 @@ export default class Declaracion extends Instruccion{
                     });
                 case tipoDato.CARACTER:
                         this.identificador.forEach(identificadorActual => {
-                        if (!tabla.setVariable(new Simbolo(this.tipoDato, identificadorActual, '0'))){
+                        if (!tabla.setVariable(new Simbolo(this.tipoDato, identificadorActual, ''))){
                             return new Errores("Semantico", "No es posible declarar variable por que ya existe", this.linea, this.columna)
                         }   
                     });

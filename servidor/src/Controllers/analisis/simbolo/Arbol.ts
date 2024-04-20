@@ -1,6 +1,7 @@
 import tablaSimbolo from "./tablaSimbolos";
 import { Instruccion } from "../abstracto/Instruccion";
 import Errores from "../excepciones/Errores";
+import Metodo from "../instrucciones/Metodo";
 
 export default class Arbol {
     private instrucciones : Array <Instruccion>
@@ -8,12 +9,14 @@ export default class Arbol {
     private tabGlobal : tablaSimbolo
     private errores : Array <Errores>
     public contador : number
+    private funciones : Array <Instruccion>
 
     constructor(instrucciones: Array<Instruccion>){
         this.instrucciones = instrucciones
         this.consola = ""
         this.tabGlobal = new tablaSimbolo()
         this.errores = new Array<Errores>
+        this.funciones = new Array<Instruccion>
         this.contador = 0
     }
 
@@ -55,10 +58,30 @@ export default class Arbol {
         return this.errores
     }
 
+    public getFunciones(){
+        return this.funciones
+    }
+
+    public setFunciones(funciones: Array<Instruccion>){
+        this.funciones = funciones
+    }
+
+    public addFunciones(funcion : Instruccion){
+        this.funciones.push(funcion)
+    }
+
+    public getFuncion(id : string){
+        for (let i of this.getFunciones()){
+            if (i instanceof Metodo){
+                if(i.id.toLocaleLowerCase() == id.toLocaleLowerCase()) return i
+            }
+        }
+        return null
+    }
+
+    //para uso de ast
     public getContador(): number{
         this.contador++;
         return this.contador
     }
 }
-
-//1111111

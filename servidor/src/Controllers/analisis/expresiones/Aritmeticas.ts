@@ -55,6 +55,17 @@ export default class Aritmeticas extends Instruccion {
         }
     }
 
+    /*getAST(anterior:string ): string {
+        let contador = Contador.getInstancia()
+        let resultado = ""
+        if (this.operacion == Operadores.NEG){
+            let nodoNegacion = `n${contador.get()}`
+            let nodoExp = `n${contador.get()}`
+            `n${nodoNativo}[label = \"Nativo\"];\n`
+        }
+        return resultado
+    }*/
+
     suma(op1: any, op2: any) {
         //validamos que el tipo cumpla con lo requerido para una suma ejemplo si se puede sumar entero + bool etc..
         let tipo1 = this.operando1?.tipoDato.getTipo()
