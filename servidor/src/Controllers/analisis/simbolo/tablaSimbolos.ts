@@ -36,7 +36,8 @@ export default class tablaSimbolo{
         //esto nos permitira trabajar con entornos
         //tablasimbolo = this por que recorremos nuestra tabla actual y si no hay tabla anterior retorna null como en una lista enlazada de fin a inicio
         for(let i: tablaSimbolo = this; i != null; i = i.getAnterior()){
-            let busqueda : Simbolo = <Simbolo> i.getTabla().get(id.toLocaleLowerCase())
+            //console.log("id tabsim "+ id)
+            let busqueda : Simbolo = <Simbolo> i.getTabla().get(id.toLocaleLowerCase()) //se modifico de id.toLocaleLowerCase() a String(id).toLocaleLowerCase()  por actualizacion
             if (busqueda != null) return busqueda
         }
         //aca retorno lo que encuentre en mi hash si no estuviera trabajando con entornos solo con tabla actual

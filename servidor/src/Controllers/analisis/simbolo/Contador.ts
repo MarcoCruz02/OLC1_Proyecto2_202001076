@@ -1,4 +1,4 @@
-//se usa patron Singleton
+//Para AST ,se usa patron Singleton 
 export default class Contador{
     private static instancia : Contador
     private contador : number

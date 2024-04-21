@@ -186,7 +186,7 @@ SENTCASE : TKCASE EXPRESION DOSPUNTOS INSTRUCCIONES           {$$ = new Case.def
 //$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4);
 DECVARIABLE : TIPODATO DECRECURSIVA IGUAL EXPRESION   {$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4);}
             | TIPODATO DECRECURSIVA                   {$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, null);}
-            //| TIPODATO DECRECURSIVA IGUAL LLAMADA     {$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4);console.log("entra ret llamada");}
+            //| TIPODATO DECRECURSIVA IGUAL LLAMADA     {$$ = new Declaracion.default($1, @1.first_line, @1.first_column, $2, $4);}
 ;
 
 DECRECURSIVA : DECRECURSIVA TIPODECLARACION   {$1.push($2); $$=$1;}
@@ -221,8 +221,8 @@ ARRAY2DRECURSIVO : ARRAY2DRECURSIVO COMA CORI ARRAYRECURSIVO CORD  {$1.push($4);
 ASIGNACION : ID IGUAL EXPRESION        {$$ = new AsignacionVar.default($1, $3, @1.first_line, @1.first_column);}
 ;
 
-IMPRESION : TKCOUT MENORQ MENORQ EXPRESION                        {$$ = new Print.default($4, @1.first_line, @1.first_column);}
-          | TKCOUT MENORQ MENORQ EXPRESION MENORQ MENORQ TKENDL   {$$ = new PrintLn.default($4, @1.first_line, @1.first_column);}
+IMPRESION : TKCOUT MENORQ MENORQ EXPRESION MENORQ MENORQ TKENDL   {$$ = new PrintLn.default($4, @1.first_line, @1.first_column);}
+          | TKCOUT MENORQ MENORQ EXPRESION                        {$$ = new Print.default($4, @1.first_line, @1.first_column);}
 ;
 
 TIPODATO : TKINT                                      {$$ = new Tipo.default(Tipo.tipoDato.ENTERO);}
@@ -247,7 +247,7 @@ EXECUTE : TKEXECUTE ID PARI PARAMSCALL PARD   {$$ = new Execute.default($2, @1.f
 ;
 
 LLAMADA : ID PARI PARAMSCALL PARD             {$$ = new Llamada.default($1, @1.first_line, @1.first_column, $3);}
-        | ID PARI PARI                        {$$ = new Llamada.default($1, @1.first_line, @1.first_column, []);}
+        | ID PARI PARD                        {$$ = new Llamada.default($1, @1.first_line, @1.first_column, []);}
 ;
 
 PARAMSCALL : PARAMSCALL COMA EXPRESION      {$1.push($3); $$ = $1;}
@@ -259,7 +259,6 @@ EXPRESION : ARITMETICAS                               {$$ = $1;}
           | LOGICAS                                   {$$ = $1;}
           | PARI EXPRESION PARD                       {$$ = $2;}
           | TERNARIO                                  {$$ = $1;}
-          | SENTRETURN                                {$$ = $1;}
           | ENTERO                                    {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.ENTERO), $1, @1.first_line, @1.first_column );}
           | DECIMAL                                   {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.DECIMAL), $1, @1.first_line, @1.first_column );}
           | CADENA                                    {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.CADENA), $1, @1.first_line, @1.first_column );}
@@ -282,9 +281,11 @@ EXPRESION : ARITMETICAS                               {$$ = $1;}
           | TKTYPEOF PARI ID PARD                     {$$ = new FuncionalidadesEspeciales.default($1, $3, @1.first_line, @1.first_column );}
           | TKTOSTRING PARI EXPRESION PARD            {$$ = new FuncionalidadesEspeciales.default($1, $3, @1.first_line, @1.first_column );}
           | ID PUNTO TKCSTR PARI PARD                 {$$ = $1}
+          | SENTRETURN                                {$$ = $1;}
           //{$$ = new FuncionalidadesEspeciales.default($3, $1, @1.first_line, @1.first_column );}
 
 ;
+
 
 ACCESOLISTA2D : ID CORI EXPRESION CORD CORI EXPRESION CORD  {$$ = new AccesoList2D.default($1, @1.first_line, @1.first_column, $3, $6 );}
 ;
@@ -345,7 +346,7 @@ SENTDOWHILE : TKDO LLAVEI INSTRUCCIONES LLAVED TKWHILE PARI EXPRESION PARD  {$$ 
 ;
 
 SENTSWITCH : TKSWITCH PARI EXPRESION PARD LLAVEI RECURSIVIDADSWITCH SENTDEFAULT LLAVED {$$ = new Switch.default($3, $6, $7, @1.first_line, @1.first_column);}
-           | TKSWITCH PARI EXPRESION PARD LLAVEI SENTDEFAULT LLAVED {$$ = new Switch.default($3, null, $6, @1.first_line, @1.first_column);}
+           | TKSWITCH PARI EXPRESION PARD LLAVEI SENTDEFAULT LLAVED                    {$$ = new Switch.default($3, null, $6, @1.first_line, @1.first_column);}
 ;
 
 RECURSIVIDADSWITCH : RECURSIVIDADSWITCH SENTCASE   {$1.push($2); $$=$1;}

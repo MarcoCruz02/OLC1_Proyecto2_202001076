@@ -134,7 +134,7 @@ export default class DeclaracionLista2D extends Instruccion {
                         return new Errores("Semantico", "Lista 2D llena ya existe en tabla de simbolos", this.linea, this.columna)
                     }
             }
-            console.log("No es lista 2D de inisializacion")
+            //console.log("No es lista 2D de inisializacion")
 
         }
 

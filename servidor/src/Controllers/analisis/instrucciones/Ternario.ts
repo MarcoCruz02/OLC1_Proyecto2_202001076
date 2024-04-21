@@ -5,6 +5,7 @@ import Tipo, { tipoDato } from "../simbolo/Tipo";
 import Errores from "../excepciones/Errores";
 import Logicos from "../expresiones/Logicos";
 import Relacionales from "../expresiones/Relacionales";
+import Contador from "../simbolo/Contador";
 
 
 export default class Ternario extends Instruccion {
@@ -171,5 +172,29 @@ export default class Ternario extends Instruccion {
         } else {
             return new Errores("Semantico", "Error la condicion no coincide con un operador ternario", this.linea, this.columna)
         }
+    }
+
+    getAST(anterior:string ): string {
+        let contador = Contador.getInstancia()
+        let resultado = ""  
+        let nodoExp1 = `n${contador.get()}`
+        let nodoInter = `n${contador.get()}`
+        let nodoExp2 = `n${contador.get()}`
+        let nododp = `n${contador.get()}`
+        let nodoExp3 = `n${contador.get()}`
+        resultado += `${nodoExp1}[label=\"EXPRESION\"];\n`
+        resultado += `${nodoInter}[label=\"?\"];\n`
+        resultado += `${nodoExp2}[label=\"EXPRESION\"];\n`
+        resultado += `${nododp}[label=\":\"];\n`
+        resultado += `${nodoExp3}[label=\"EXPRESION\"];\n`
+        resultado += `${anterior}->${nodoExp1};\n`
+        resultado += `${anterior}->${nodoInter};\n`
+        resultado += `${anterior}->${nodoExp2};\n`
+        resultado += `${anterior}->${nododp};\n`
+        resultado += `${anterior}->${nodoExp3};\n`
+        resultado += this.condicion.getAST(nodoExp1)
+        resultado += this.expresionTrue.getAST(nodoExp2)
+        resultado += this.expresionFalse.getAST(nodoExp3)
+        return resultado
     }
 }

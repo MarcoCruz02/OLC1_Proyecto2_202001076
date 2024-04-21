@@ -18,21 +18,21 @@ export default class Nativo extends Instruccion {
         return this.valor
     }
 
-    /*identify: string = Guid.create().toString().replace(/-/gm, "");   //identificador unico para el nodo
-    graph(): string {
-        let str: string = `node${this.identify} [label="${this.valor}"];\n`;
-        return str;
-    }*/
+    /*
+     Generar un nodo nativo ,valor
+     Nativo -> valor
+     anterior -> Nativo
+    */
 
     //identify: string = Guid.create().toString().replace(/-/gm, ""); //identificador unico para el nodo
     getAST(anterior:string ): string {
         let contador = Contador.getInstancia()
         let nodoNativo = `n${contador.get()}`
         let nodoValor = `n${contador.get()}`
-        let resultado = `n${nodoNativo}[label = \"Nativo\"];\n`
-        resultado += `n${nodoValor}[label = \"${this.valor}\"];\n`
-        resultado += `n${nodoNativo}[label = \"${this.valor}\"];\n`
-        resultado += `n${anterior}[label = \"${this.valor}\"];\n`
+        let resultado = `${nodoNativo}[label=\"NATIVO\"];\n`
+        resultado += `${nodoValor}[label=\"${this.valor}\"];\n`
+        resultado += `${nodoNativo}->${nodoValor};\n`
+        resultado += `${anterior}->${nodoNativo};\n`
         return resultado
     }
 }

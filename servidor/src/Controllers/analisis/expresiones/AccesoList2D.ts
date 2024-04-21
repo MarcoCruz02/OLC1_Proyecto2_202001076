@@ -5,6 +5,7 @@ import tablaSimbolo from "../simbolo/tablaSimbolos";
 import Tipo, { tipoDato } from "../simbolo/Tipo";
 import Lista2D from "../simbolo/Lista2D";
 import Simbolo from "../simbolo/Simbolo";
+import Contador from "../simbolo/Contador";
 
 export default class AccesoList2D extends Instruccion {
     private id: string
@@ -41,5 +42,35 @@ export default class AccesoList2D extends Instruccion {
         //de lo contrario son numeros comunes y su acceso se interpreta normal
         //console.log(this.posicion1)
         return valorListaLista.getValor(this.posicion1.interpretar(arbol,tabla),this.posicion2.interpretar(arbol,tabla))
+    }
+
+    //ID CORI EXPRESION CORD CORI EXPRESION CORD
+    getAST(anterior:string ): string {
+        let contador = Contador.getInstancia()
+        let resultado = ""
+        let nodoId = `n${contador.get()}`
+        let nodoCI1 = `n${contador.get()}`
+        let nodoExp1 = `n${contador.get()}`
+        let nodoCD1 = `n${contador.get()}`
+        let nodoCI2 = `n${contador.get()}`
+        let nodoExp2 = `n${contador.get()}`
+        let nodoCD2 = `n${contador.get()}`
+        resultado += `${nodoId}[label=\"ID\"];\n`
+        resultado += `${nodoCI1}[label=\"[\"];\n`
+        resultado += `${nodoExp1}[label=\"EXPRESION\"];\n`
+        resultado += `${nodoCD1}[label=\"]\"];\n`
+        resultado += `${nodoCI2}[label=\"[\"];\n`
+        resultado += `${nodoExp2}[label=\"EXPRESION\"];\n`
+        resultado += `${nodoCD2}[label=\"]\"];\n`
+        resultado += `${anterior}->${nodoId};\n`
+        resultado += `${anterior}->${nodoCI1};\n`
+        resultado += `${anterior}->${nodoExp1};\n`
+        resultado += `${anterior}->${nodoCD1};\n`
+        resultado += `${anterior}->${nodoCI2};\n`
+        resultado += `${anterior}->${nodoExp2};\n`
+        resultado += `${anterior}->${nodoCD2};\n`
+        resultado += this.posicion1.getAST(nodoExp1)
+        resultado += this.posicion2.getAST(nodoExp2)
+        return resultado
     }
 }

@@ -3,6 +3,7 @@ import Arbol from "../simbolo/Arbol";
 import tablaSimbolo from "../simbolo/tablaSimbolos";
 import Tipo, { tipoDato } from "../simbolo/Tipo";
 import Errores from "../excepciones/Errores";
+import Contador from "../simbolo/Contador";
 
 export default class Aritmeticas extends Instruccion {
     private operando1: Instruccion | undefined
@@ -505,6 +506,50 @@ export default class Aritmeticas extends Instruccion {
             default:
                 return new Errores("Semantico", "Negacion Unaria invalida", this.linea, this.columna)
         }
+    }
+
+    /*
+     Generar un nodo Expresion ,operacion , Expresion para caso suma o resta
+     en caso negacion nodo - y nodo expresion 
+     expresion -> valor  ....
+    */
+    getAST(anterior:string ): string {
+        let contador = Contador.getInstancia()
+        let resultado = ""
+        if(this.operacion == Operadores.NEG){
+            let nodoNegacion = `n${contador.get()}`
+            let nodoExp = `n${contador.get()}`
+            resultado = `${nodoNegacion}[label=\"-\"];\n`
+            resultado = `${nodoNegacion}[label=\"EXPRESION\"];\n`
+            resultado += `${anterior}->${nodoNegacion};\n`
+            resultado += `${anterior}->${nodoExp};\n`
+            resultado += this.operandoUnico?.getAST(nodoExp)
+            return resultado
+        }
+        let nodoExp1 = `n${contador.get()}`
+        let nodoOperacion = `n${contador.get()}`
+        let nodoExp2 = `n${contador.get()}`
+        resultado += `${nodoExp1}[label=\"EXPRESION\"];\n`
+        if (this.operacion == Operadores.SUMA){
+            resultado = `${nodoOperacion}[label=\"+\"];\n`
+        }else if (this.operacion == Operadores.RESTA){
+            resultado = `${nodoOperacion}[label=\"-\"];\n`
+        }else if (this.operacion == Operadores.MULTIPLICACION){
+            resultado = `${nodoOperacion}[label=\"*\"];\n`
+        }else if (this.operacion == Operadores.DIVISION){
+            resultado = `${nodoOperacion}[label=\"/\"];\n`
+        }else if (this.operacion == Operadores.POTENCIA){
+            resultado = `${nodoOperacion}[label=\"POW\"];\n`
+        }else if (this.operacion == Operadores.MODULO){
+            resultado = `${nodoOperacion}[label=\"%\"];\n`
+        }
+        resultado += `${nodoExp2}[label=\"EXPRESION\"];\n`
+        resultado += `${anterior}->${nodoExp1};\n`
+        resultado += `${anterior}->${nodoOperacion};\n`
+        resultado += `${anterior}->${nodoExp2};\n`
+        resultado += this.operando1?.getAST(nodoExp1)
+        resultado += this.operando2?.getAST(nodoExp2)
+        return resultado
     }
 
 }

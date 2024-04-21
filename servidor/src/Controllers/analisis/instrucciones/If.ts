@@ -4,6 +4,7 @@ import Arbol from "../simbolo/Arbol";
 import tablaSimbolo from "../simbolo/tablaSimbolos";
 import Break from "./Break";
 import Tipo, {tipoDato} from "../simbolo/Tipo";
+import Contador from "../simbolo/Contador";
 
 export default class If extends Instruccion {
     //almacena la condicion del if
@@ -56,6 +57,77 @@ export default class If extends Instruccion {
                 }
             }  
         }
+    }
+
+    getAST(anterior:string ): string {
+        let contador = Contador.getInstancia()
+        let resultado = ""  
+        if (this.instrucciones2 != null){
+            let nodoT = `n${contador.get()}`
+            let nodoIf = `n${contador.get()}`
+            let nodoPI = `n${contador.get()}`
+            let nodoExp = `n${contador.get()}`
+            let nodoPd = `n${contador.get()}`
+            let nodoLli = `n${contador.get()}`
+            let nodoIns = `n${contador.get()}`
+            let nodoLld = `n${contador.get()}`
+            let nodoElse = `n${contador.get()}`
+            resultado += `${nodoT}[label=\"SENTIF\"];\n`
+            resultado += `${nodoIf}[label=\"IF\"];\n`
+            resultado += `${nodoPI}[label=\"(\"];\n`
+            resultado += `${nodoExp}[label=\"EXPRESION\"];\n`
+            resultado += `${nodoPd}[label=\")\"];\n`
+            resultado += `${nodoLli}[label=\"{\"];\n`
+            resultado += `${nodoIns}[label=\"INSTRUCCIONES\"];\n`
+            resultado += `${nodoLld}[label=\"}\"];\n`
+            resultado += `${nodoElse}[label=\"ELSE\"];\n`
+            resultado += `${anterior}->${nodoT};\n`
+            resultado += `${nodoT}->${nodoIf};\n`
+            resultado += `${nodoT}->${nodoPI};\n`
+            resultado += `${nodoT}->${nodoExp};\n`
+            resultado += `${nodoT}->${nodoPd};\n`
+            resultado += `${nodoT}->${nodoLli};\n`
+            resultado += `${nodoT}->${nodoIns};\n`
+            resultado += `${nodoT}->${nodoLld};\n`
+            resultado += `${nodoT}->${nodoElse};\n`
+            resultado += this.condicion.getAST(nodoExp)
+            for(let i of this.instrucciones){
+                resultado += i.getAST(nodoIns)
+            }
+            for(let i of this.instrucciones2){
+                resultado += i.getAST(nodoElse)
+            }
+        }else{
+            let nodoT = `n${contador.get()}`
+            let nodoIf = `n${contador.get()}`
+            let nodoPI = `n${contador.get()}`
+            let nodoExp = `n${contador.get()}`
+            let nodoPd = `n${contador.get()}`
+            let nodoLli = `n${contador.get()}`
+            let nodoIns = `n${contador.get()}`
+            let nodoLld = `n${contador.get()}`
+            resultado += `${nodoT}[label=\"SENTIF\"];\n`
+            resultado += `${nodoIf}[label=\"IF\"];\n`
+            resultado += `${nodoPI}[label=\"(\"];\n`
+            resultado += `${nodoExp}[label=\"EXPRESION\"];\n`
+            resultado += `${nodoPd}[label=\")\"];\n`
+            resultado += `${nodoLli}[label=\"{\"];\n`
+            resultado += `${nodoIns}[label=\"INSTRUCCIONES\"];\n`
+            resultado += `${nodoLld}[label=\"}\"];\n`
+            resultado += `${anterior}->${nodoT};\n`
+            resultado += `${nodoT}->${nodoIf};\n`
+            resultado += `${nodoT}->${nodoPI};\n`
+            resultado += `${nodoT}->${nodoExp};\n`
+            resultado += `${nodoT}->${nodoPd};\n`
+            resultado += `${nodoT}->${nodoLli};\n`
+            resultado += `${nodoT}->${nodoIns};\n`
+            resultado += `${nodoT}->${nodoLld};\n`
+            resultado += this.condicion.getAST(nodoExp)
+            for(let i of this.instrucciones){
+                resultado += i.getAST(nodoIns)
+            }
+        }
+        return resultado
     }
 }
 

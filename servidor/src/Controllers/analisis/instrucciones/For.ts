@@ -4,6 +4,7 @@ import tablaSimbolo from "../simbolo/tablaSimbolos";
 import Tipo, { tipoDato } from "../simbolo/Tipo";
 import Errores from "../excepciones/Errores";
 import Break from "./Break";
+import Contador from "../simbolo/Contador";
 
 export default class For extends Instruccion{
     private declaracionAsignacion : Instruccion
@@ -50,6 +51,56 @@ export default class For extends Instruccion{
                 if (resultado instanceof Break) return;
             }
         }
+    }
+
+    //TKFOR PARI DECVARIABLE PUNTOCOMA EXPRESION PUNTOCOMA EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED
+    //TKFOR PARI ASIGNACION PUNTOCOMA EXPRESION PUNTOCOMA EXPRESION PARD LLAVEI INSTRUCCIONES LLAVED
+    getAST(anterior:string ): string {
+        let contador = Contador.getInstancia()
+        let resultado = ""  
+        let nodoT = `n${contador.get()}`
+        let nodoFor = `n${contador.get()}`
+        let nodoPI = `n${contador.get()}`
+        let nodoDA = `n${contador.get()}`
+        let nodopc1 = `n${contador.get()}`
+        let nodoExp = `n${contador.get()}`
+        let nodopc2 = `n${contador.get()}`
+        let nodoExp2 = `n${contador.get()}`
+        let nodoPd = `n${contador.get()}`
+        let nodoLli = `n${contador.get()}`
+        let nodoIns = `n${contador.get()}`
+        let nodoLld = `n${contador.get()}`
+        resultado += `${nodoT}[label=\"SENTFOR\"];\n`
+        resultado += `${nodoFor}[label=\"FOR\"];\n`
+        resultado += `${nodoPI}[label=\"(\"];\n`
+        resultado += `${nodoDA}[label=\"EXPRESION\"];\n`
+        resultado += `${nodopc1}[label=\";\"];\n`
+        resultado += `${nodoExp}[label=\"EXPRESION\"];\n`
+        resultado += `${nodopc2}[label=\";\"];\n`
+        resultado += `${nodoExp2}[label=\"EXPRESION\"];\n`
+        resultado += `${nodoPd}[label=\")\"];\n`
+        resultado += `${nodoLli}[label=\"{\"];\n`
+        resultado += `${nodoIns}[label=\"INSTRUCCIONES\"];\n`
+        resultado += `${nodoLld}[label=\"}\"];\n`
+        resultado += `${anterior}->${nodoT};\n`
+        resultado += `${nodoT}->${nodoFor};\n`
+        resultado += `${nodoT}->${nodoPI};\n`
+        resultado += `${nodoT}->${nodoDA};\n`
+        resultado += `${nodoT}->${nodopc1};\n`
+        resultado += `${nodoT}->${nodoExp};\n`
+        resultado += `${nodoT}->${nodopc2};\n`
+        resultado += `${nodoT}->${nodoExp2};\n`
+        resultado += `${nodoT}->${nodoPd};\n`
+        resultado += `${nodoT}->${nodoLli};\n`
+        resultado += `${nodoT}->${nodoIns};\n`
+        resultado += `${nodoT}->${nodoLld};\n`
+        resultado += this.declaracionAsignacion.getAST(nodoDA)
+        resultado += this.condicion.getAST(nodoExp)
+        resultado += this.actualizacion.getAST(nodoExp2)
+        for(let i of this.instrucciones){
+            resultado += i.getAST(nodoIns)
+        }
+        return resultado
     }
 }
 

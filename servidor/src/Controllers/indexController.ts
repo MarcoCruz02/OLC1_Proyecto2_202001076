@@ -5,7 +5,10 @@ import Errores from './analisis/excepciones/Errores';
 import Metodo from './analisis/instrucciones/Metodo';
 import Declaracion from './analisis/instrucciones/Declaracion';
 import Execute from './analisis/instrucciones/Execute';
+import Contador from './analisis/simbolo/Contador';
 export let ArregloErrores: Array<Errores> = []      //cambiar*********
+
+var AstDot : string
 
 class controller {
     public prueba(req: Request, res: Response) {
@@ -23,6 +26,7 @@ class controller {
     public interpretar(req: Request, res: Response) {
         ArregloErrores = new Array<Errores>
         try {
+            AstDot = ""
             let parser = require('./analisis/analizador')
             let ast = new Arbol(parser.parse(req.body.entrada))
             let tabla = new tablaSimbolo()
@@ -72,12 +76,35 @@ class controller {
             }*/
             console.log(tabla)
             console.log(ArregloErrores)
+
+            //para AST
+            let contador = Contador.getInstancia()
+            let cadena = "digraph AST{\n"
+            cadena += "nINICIO[label=\"INICIO\"];\n"
+            cadena += "nINSTRUCCIONES[label=\"INSTRUCCIONES\"];\n"
+            cadena += "nINICIO -> nINSTRUCCIONES;\n"
+
+            //recorremos nuestro arbol
+            for (let i of ast.getInstrucciones()){
+                if(i instanceof Errores) continue
+                let nodo = `n${contador.get()}`
+                cadena += `${nodo}[label=\"INSTRUCCION\"];\n`
+                cadena += `nINSTRUCCIONES -> ${nodo};\n`
+                cadena += i.getAST(nodo)
+            }
+            cadena += "\n }"
+            AstDot = cadena
+
             //hasemos modificacion ast.getconsole para imprimir por medio de palabra print
             res.send({ "Respuesta": ast.getConsola() })
         } catch (err: any) {
             res.json({ message: "Error al ejecutar analisis" })
             console.log(err)
         }
+    }
+
+    public generadorAst(req: Request, res: Response){
+        res.json({AST : AstDot})
     }
 
     public mostrarErrores(req: Request, res: Response) {  //cambiar************

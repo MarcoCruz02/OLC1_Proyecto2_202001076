@@ -4,6 +4,7 @@ import tablaSimbolo from "../simbolo/tablaSimbolos";
 import Tipo, { tipoDato } from "../simbolo/Tipo";
 import Errores from "../excepciones/Errores";
 import Break from "./Break";
+import Contador from "../simbolo/Contador";
 
 export default class While extends Instruccion{
     private condicion : Instruccion
@@ -39,5 +40,39 @@ export default class While extends Instruccion{
                 //faltan manejar errores ..........
             }
         }
+    }
+
+    getAST(anterior:string ): string {
+        let contador = Contador.getInstancia()
+        let resultado = ""  
+        let nodoWhile = `n${contador.get()}`
+        let nodoPI = `n${contador.get()}`
+        let nodoExp = `n${contador.get()}`
+        let nodoPd = `n${contador.get()}`
+        let nodoLli = `n${contador.get()}`
+        let nodoIns = `n${contador.get()}`
+        let nodoLld = `n${contador.get()}`
+        let nodopc = `n${contador.get()}`
+        resultado += `${nodoWhile}[label=\"WHILE\"];\n`
+        resultado += `${nodoPI}[label=\"(\"];\n`
+        resultado += `${nodoExp}[label=\"EXPRESION\"];\n`
+        resultado += `${nodoPd}[label=\")\"];\n`
+        resultado += `${nodoLli}[label=\"{\"];\n`
+        resultado += `${nodoIns}[label=\"INSTRUCCIONES\"];\n`
+        resultado += `${nodoLld}[label=\"}\"];\n`
+        resultado += `${nodopc}[label=\";\"];\n`
+        resultado += `${anterior}->${nodoWhile};\n`
+        resultado += `${anterior}->${nodoPI};\n`
+        resultado += `${anterior}->${nodoExp};\n`
+        resultado += `${anterior}->${nodoPd};\n`
+        resultado += `${anterior}->${nodoLli};\n`
+        resultado += `${anterior}->${nodoIns};\n`
+        resultado += `${anterior}->${nodoLld};\n`
+        resultado += `${anterior}->${nodopc};\n`
+        resultado += this.condicion.getAST(nodoExp)
+        for(let i of this.instrucciones){
+            resultado += i.getAST(nodoIns)
+        }
+        return resultado
     }
 }

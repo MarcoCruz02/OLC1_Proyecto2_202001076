@@ -3,16 +3,12 @@ import Arbol from "../simbolo/Arbol";
 import tablaSimbolo from "../simbolo/tablaSimbolos";
 import Tipo, { tipoDato } from "../simbolo/Tipo";
 import Errores from "../excepciones/Errores";
-import { Guid } from "guid-typescript/dist/guid";
+import Contador from "../simbolo/Contador";
 
 export default class Relacionales extends Instruccion {
     private operando1: Instruccion
     private operando2: Instruccion
     private relacional: Relacional
-
-    private signoObt = ""        //para ast
-    private opObt1 = ""          //para ast
-    private opObt2 = ""          //para ast
 
 
     // al poner op2 con el signo ? estamos diciendo que este parametro es opcional de lo contrario tendriamos que escribir el constructor 2 veces uno con op2 = Instruccion y otra sin el
@@ -29,68 +25,53 @@ export default class Relacionales extends Instruccion {
         if (opIzq instanceof Errores) return opIzq
         opDer = this.operando2.interpretar(arbol, tabla)
         if (opDer instanceof Errores) return opDer
-        this.opObt1 = opIzq        //para ast
-        this.opObt2 = opDer        //para ast
 
         switch (this.relacional) {
             case Relacional.MENORQUE:
-                this.signoObt = "<"        //para ast
                 return this.menorque(opIzq, opDer)
             case Relacional.MAYORQUE:
-                this.signoObt = ">"        //para ast
                 return this.mayorque(opIzq, opDer)
             case Relacional.MENORIGUALQUE:
-                this.signoObt = "<="        //para ast
                 return this.menorigualque(opIzq, opDer)
             case Relacional.MAYORIGUALQUE:
-                this.signoObt = ">="        //para ast
                 return this.mayorigualque(opIzq, opDer)
             case Relacional.DOBLEIGUAL:
-                this.signoObt = "=="        //para ast
                 return this.dobleigual(opIzq, opDer)
             case Relacional.NOIGUAL:
-                this.signoObt = "!="        //para ast
                 return this.noigual(opIzq, opDer)
             default:
                 return new Errores("Semantico", "Operador Relacional Invalido", this.linea, this.columna)
         }
     }
 
-    /*generarAST(anterior: string, arbol: Arbol): string {
-        //con cada llamada a .getcontador el id aumenta 
-        let id1 = arbol.getContador()
-        let id2 = arbol.getContador()
-        let id3 = arbol.getContador()
-        let id4 = arbol.getContador()
-        let cadena: string = `n${id1} [label="RELACIONAL"];\n`;
-        cadena+= `n${id2}[label="${this.operando1}"];\n`
-        cadena+= `n${id4}[label="${this.operando2}"];\n`
-
-        cadena += `n${id1} -> n${id2};\n`;
-        cadena += this.operando1.generarAST(anterior, arbol);
-
-        cadena += `n${id1} -> n${id3}op;\n n${id3}op[label="${this.relacional}"];\n`;
-
-        cadena += `n${id1} -> n${id4};\n`;
-        cadena += this.operando2.generarAST(anterior, arbol);
-
-        return cadena;
-    }*/
-
-    /*identify: string = Guid.create().toString().replace(/-/gm, ""); 
-    graph(): string {
-        let str: string = `node${this.identify} [label="Relational"];\n`;
-
-        str += `node${this.identify} -> node${this.operando1.};\n`;
-        str += this.operando1.g();
-
-        str += `node${this.identify} -> node${this.identify}op;\n node${this.identify}op[label="${this.relacional}"];\n`;
-
-        str += `node${this.identify} -> node${this.operando2.identify};\n`;
-        str += this.operando2.graph();
-
-        return str;
-    }*/
+    getAST(anterior:string ): string {
+        let contador = Contador.getInstancia()
+        let resultado = ""
+        let nodoExp1 = `n${contador.get()}`
+        let nodoRelacional = `n${contador.get()}`
+        let nodoExp2 = `n${contador.get()}`
+        resultado += `${nodoExp1}[label=\"EXPRESION\"];\n`
+        if (this.relacional == Relacional.MENORQUE){
+            resultado = `${nodoRelacional}[label=\"<\"];\n`
+        }else if (this.relacional == Relacional.MAYORQUE){
+            resultado = `${nodoRelacional}[label=\">\"];\n`
+        }else if (this.relacional == Relacional.MENORIGUALQUE){
+            resultado = `${nodoRelacional}[label=\"<=\"];\n`
+        }else if (this.relacional == Relacional.MAYORIGUALQUE){
+            resultado = `${nodoRelacional}[label=\">=\"];\n`
+        }else if (this.relacional == Relacional.DOBLEIGUAL){
+            resultado = `${nodoRelacional}[label=\"==\"];\n`
+        }else if (this.relacional == Relacional.NOIGUAL){
+            resultado = `${nodoRelacional}[label=\"!=\"];\n`
+        }
+        resultado += `${nodoExp2}[label=\"EXPRESION\"];\n`
+        resultado += `${anterior}->${nodoExp1};\n`
+        resultado += `${anterior}->${nodoRelacional};\n`
+        resultado += `${anterior}->${nodoExp2};\n`
+        resultado += this.operando1.getAST(nodoExp1)
+        resultado += this.operando2.getAST(nodoExp2)
+        return resultado
+    }
 
     menorque(op1: any, op2: any) {
         //validamos que el tipo cumpla con lo requerido 
