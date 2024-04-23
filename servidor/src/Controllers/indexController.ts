@@ -6,7 +6,7 @@ import Metodo from './analisis/instrucciones/Metodo';
 import Declaracion from './analisis/instrucciones/Declaracion';
 import Execute from './analisis/instrucciones/Execute';
 import Contador from './analisis/simbolo/Contador';
-export let ArregloErrores: Array<Errores> = []      //cambiar*********
+export let ArregloErrores: Array<Errores> = []      
 
 var AstDot : string
 
@@ -107,7 +107,7 @@ class controller {
         res.json({AST : AstDot})
     }
 
-    public mostrarErrores(req: Request, res: Response) {  //cambiar************
+    public mostrarErrores(req: Request, res: Response) {  //falta modificar
         try {
             //console.log(ArregloErrores)
             res.json({ "ArregloErrores": ArregloErrores })

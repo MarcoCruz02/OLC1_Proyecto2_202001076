@@ -30,6 +30,15 @@
   color: #61dafb;
 }
 
+.containerAst {
+  width: 100%; 
+  margin: 0 auto;
+}
+.containerAst:hover {
+  transform: scale(2.8); 
+  transition: transform 0.3s ease-in-out; 
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

@@ -1,12 +1,16 @@
 import { useEffect, useState, useRef } from "react"
 import './App.css';
 import Editor from '@monaco-editor/react';
+import { Graphviz } from 'graphviz-react';
+import AST from "./AST";
 
 
 function App() {
   const editorRef = useRef(null);
   const consolaRef = useRef(null);
   const [arrErrores, setArregloErrores] = useState([]);
+  const [valorAst, setValorCadenaAst] = useState(String);
+  //const [astData, setAstData] = useState({});
 
   function handleEditorDidMount(editor, id) {
     //aca se almacena la informacion de cada editor 
@@ -16,6 +20,68 @@ function App() {
       consolaRef.current = editor;
     }
   }
+
+  const mostrarAST = () => {
+    fetch('http://localhost:4000/getAST', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => response.json())                                         // Analizar la respuesta JSON
+      .then(jsonData => {
+        //console.log(jsonData["AST"]);                                                  // Use los datos JSON
+        //globaljsonData = jsonData;
+        //return jsonData;
+        setValorCadenaAst(jsonData.AST);
+        console.log(valorAst)
+        // Realizar acciones basadas en los datos
+      })
+      .catch(error => console.error('Error al obtener JSON:', error));           // Manejar errores
+
+    /*fetch('http://localhost:4000/getAST', {
+    })
+    .then(response => response.json())
+    .then(data => setAstData(data));
+    if (!astData) return <div>Cargando...</div>;
+    const astString = astData.AST;
+    const mostrarGrafoAST = `
+      <html>
+        <head>
+          <title>AST</title>
+        </head>
+        <body>
+          ${<Graphviz dot={`${astString}`} />}
+        </body>
+      </html>
+    `;
+
+    const nuevaVentana = window.open("", "_blank");
+    nuevaVentana.document.open();
+    nuevaVentana.document.write(mostrarGrafoAST);
+    nuevaVentana.document.close();*/
+  };
+
+  const generarAst = () => {
+    mostrarAST();
+    const mostrarGrafoAST = `
+      <html>
+        <head>
+          <title>AST</title>
+        </head>
+        <body>
+          <div>
+            ${valorAst && <Graphviz dot={valorAst} />}
+          </div>
+        </body>
+      </html>
+    `;
+    //console.log(globaljsonData); 
+    const nuevaVentana = window.open("", "_blank");
+    nuevaVentana.document.open();
+    nuevaVentana.document.write(mostrarGrafoAST);
+    nuevaVentana.document.close();
+  };
 
   const mostrarHTMLErrores = () => {
     reporteErrores();
@@ -36,14 +102,14 @@ function App() {
           </thead>
           <tbody>
             ${arrErrores.map((element, index) => (
-              <tr key={index}>
-                <td>{index}</td>
-                <td>{element.tipoError}</td>
-                <td>{element.desc}</td>
-                <td>{element.fila}</td>
-                <td>{element.col}</td>
-              </tr>
-            ))}
+      <tr key={index}>
+        <td>{index}</td>
+        <td>{element.tipoError}</td>
+        <td>{element.desc}</td>
+        <td>{element.fila}</td>
+        <td>{element.col}</td>
+      </tr>
+    ))}
           </tbody>
         </table>
       </html>
@@ -65,7 +131,7 @@ function App() {
     })
       .then(response => response.json())
       .then(data => {
-      setArregloErrores(data.ArregloErrores);
+        setArregloErrores(data.ArregloErrores);
 
         console.log(data.ArregloErrores)
         console.log("Arreglo de errores")
@@ -106,7 +172,35 @@ function App() {
     };
     reader.readAsText(file);
   }
+
+  const OpenNewWindowButton = () => {
+    const handleClick = () => {
+      // Function to handle button click
+      const newWindow = window.open("", '_blank'); // Replace with desired URL
+      if (newWindow) {
+        newWindow.focus(); // Focus on the new window
+      }
+    };
+
+    return (
+      <input type="button" value="Op" id="btnCargar" className="btn btn-outline-secondary" onClick={handleClick}></input>
+      //<button onClick={handleClick}>Abrir nueva ventana</button>
+    );
+  };
+
+  const GenAst = () => {
+    return(
+        <div>
+            {valorAst && <Graphviz dot={valorAst} />}
+        </div>
+    );
+  };
+
   //<input type="button" value="Interpretar" id="btnCargar" class="form-control form-control-lg" onClick={interpretar} />
+
+  //<input type="button" value="AST" id="btnCargar" className="btn btn-outline-secondary" onClick={generarAst} />
+  //<button class="btn btn-outline-secondary" onClick={mostrarAST}>Mostrar AST</button>
+  //<OpenNewWindowButton />
   return (
     <div className="App">
       <div className="background-color: #F0F8FF p-2 text-white bg-opacity-75">
@@ -123,6 +217,7 @@ function App() {
             <div className="row">
               <input type="button" value="Interpretar" id="btnCargar" className="btn btn-outline-secondary" onClick={interpretar} />
               <input type="button" value="Error" id="btnCargar" className="btn btn-outline-secondary" onClick={mostrarHTMLErrores} />
+              <input type="button" value="AST" id="btnCargar" className="btn btn-outline-secondary" onClick={mostrarAST} />
             </div>
           </div>
         </div>
@@ -142,12 +237,23 @@ function App() {
           </div>
         </div>
       </div>
+      <h3>Grafico Ast</h3>
+      <div className="containerAst">
+        <GenAst />
+      </div>
     </div>
   );
 }
 
 export default App;
 
+
+/*
+<input type="button" value="AST" id="btnCargar" className="btn btn-outline-secondary" onClick={mostrarAST} />
+              <div>
+                {valorAst && <Graphviz dot={valorAst} />}
+              </div>
+*/
 
 /*
 return (

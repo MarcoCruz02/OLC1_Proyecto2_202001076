@@ -4,6 +4,7 @@ import Arbol from "../simbolo/Arbol";
 import Simbolo from "../simbolo/Simbolo";
 import tablaSimbolo from "../simbolo/tablaSimbolos";
 import Tipo, { tipoDato } from '../simbolo/Tipo'
+import Contador from "../simbolo/Contador";
 
 export default class AsignacionList2D extends Instruccion{
     private id : string
@@ -40,5 +41,40 @@ export default class AsignacionList2D extends Instruccion{
         //de lo contrario asignamos con posicion normal
         valor.setValor(newValorL,this.posicion.interpretar(arbol,tabla))
 
+    }
+
+    getAST(anterior: string): string {
+        let contador = Contador.getInstancia()
+        let resultado = ""
+        let nodoT = `n${contador.get()}`
+        let nodoId = `n${contador.get()}`
+        let nodoCI = `n${contador.get()}`
+        let nodoExp = `n${contador.get()}`
+        let nodoCD = `n${contador.get()}`
+        let nodoIgual = `n${contador.get()}`
+        let nodoExp2 = `n${contador.get()}`
+        let nodopc = `n${contador.get()}`
+        let obtId = `n${contador.get()}`
+        resultado += `${nodoT}[label=\"ASIGNLISTA\"];\n`
+        resultado += `${nodoId}[label=\"ID\"];\n`
+        resultado += `${nodoCI}[label=\"[\"];\n`
+        resultado += `${nodoExp}[label=\"EXPRECION\"];\n`
+        resultado += `${nodoCD}[label=\"]\"];\n`
+        resultado += `${nodoIgual}[label=\"=\"];\n`
+        resultado += `${nodoExp2}[label=\"EXPRECION\"];\n`
+        resultado += `${nodopc}[label=\";\"];\n`
+        resultado += `${obtId}[label=\"${this.id}\"];\n`
+        resultado += `${anterior}->${nodoT};\n`
+        resultado += `${nodoT}->${nodoId};\n`
+        resultado += `${nodoT}->${nodoCI};\n`
+        resultado += `${nodoT}->${nodoExp};\n`
+        resultado += `${nodoT}->${nodoCD};\n`
+        resultado += `${nodoT}->${nodoIgual};\n`
+        resultado += `${nodoT}->${nodoExp2};\n`
+        resultado += `${nodoT}->${nodopc};\n`
+        resultado += `${nodoId}->${obtId};\n`
+        resultado += this.posicion.getAST(nodoExp)
+        resultado += this.expresion.getAST(nodoExp2)
+        return resultado
     }
 }

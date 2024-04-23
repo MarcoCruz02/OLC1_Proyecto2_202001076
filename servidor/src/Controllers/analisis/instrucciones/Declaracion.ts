@@ -4,8 +4,7 @@ import Arbol from "../simbolo/Arbol";
 import Simbolo from "../simbolo/Simbolo";
 import tablaSimbolo from "../simbolo/tablaSimbolos";
 import Tipo, {tipoDato} from "../simbolo/Tipo";
-import Lista from "../simbolo/Lista";
-import Lista2D from "../simbolo/Lista2D";
+import Contador from "../simbolo/Contador";
 
 export default class Declaracion extends Instruccion{
     //declaramos identificador como lista para cuando se declare asi int x,y,z ...
@@ -87,6 +86,66 @@ export default class Declaracion extends Instruccion{
                     //break;
                 }
         }    
+    }
+
+    getAST(anterior:string ): string {
+        let contador = Contador.getInstancia()
+        let resultado = ""  
+        if (this.valor != null){
+            let nodoT= `n${contador.get()}`
+            let nodoTipo = `n${contador.get()}`
+            let nodoExp1 = `n${contador.get()}`
+            let nodoIgual = `n${contador.get()}`
+            let nodoExp2 = `n${contador.get()}`
+            let nodopc = `n${contador.get()}`
+            let obtId = `n${contador.get()}`
+            resultado += `${nodoT}[label=\"DECVARIABLE\"];\n`
+            resultado += `${nodoTipo}[label=\"TIPODATO\"];\n`
+            resultado += `${nodoExp1}[label=\"ID\"];\n`
+            resultado += `${nodoIgual}[label=\"=\"];\n`
+            resultado += `${nodoExp2}[label=\"EXPRECION\"];\n`
+            resultado += `${nodopc}[label=\";\"];\n`
+            let ids = ""  //para obtener ids de this.identificador
+            for(let i = 0 ; i< this.identificador.length ;i++){
+                if(i == 0){
+                    ids += this.identificador[i]
+                }
+                ids += String(","+this.identificador[i])
+            }
+            resultado += `${obtId}[label=\"${ids}\"];\n`
+            resultado += `${anterior}->${nodoT};\n`
+            resultado += `${nodoT}->${nodoTipo};\n`
+            resultado += `${nodoT}->${nodoExp1};\n`
+            resultado += `${nodoT}->${nodoIgual};\n`
+            resultado += `${nodoT}->${nodoExp2};\n`
+            resultado += `${nodoT}->${nodopc};\n`
+            resultado += `${nodoExp1}->${obtId};\n`
+            resultado += this.valor.getAST(nodoExp2)
+        }else{
+            let nodoT= `n${contador.get()}`
+            let nodoTipo = `n${contador.get()}`
+            let nodoExp1 = `n${contador.get()}`
+            let nodopc = `n${contador.get()}`
+            let obtId = `n${contador.get()}`
+            resultado += `${nodoT}[label=\"DECVARIABLE\"];\n`
+            resultado += `${nodoTipo}[label=\"TIPODATO\"];\n`
+            resultado += `${nodoExp1}[label=\"ID\"];\n`
+            resultado += `${nodopc}[label=\";\"];\n`
+            let ids = ""  //para obtener ids de this.identificador
+            for(let i = 0 ; i< this.identificador.length ;i++){
+                if(i == 0){
+                    ids += this.identificador[i]
+                }
+                ids += String(","+this.identificador[i])
+            }
+            resultado += `${obtId}[label=\"${ids}\"];\n`
+            resultado += `${anterior}->${nodoT};\n`
+            resultado += `${nodoT}->${nodoTipo};\n`
+            resultado += `${nodoT}->${nodoExp1};\n`
+            resultado += `${nodoT}->${nodopc};\n`
+            resultado += `${nodoExp1}->${obtId};\n`
+        }
+        return resultado
     }
 }
 

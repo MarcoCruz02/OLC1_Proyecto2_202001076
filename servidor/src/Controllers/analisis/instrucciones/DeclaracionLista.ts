@@ -6,6 +6,7 @@ import tablaSimbolo from "../simbolo/tablaSimbolos";
 import Tipo, { tipoDato } from "../simbolo/Tipo";
 import FuncionalidadesEspeciales from "./FuncionalidadesEspeciales";
 import Simbolo from "../simbolo/Simbolo";
+import Contador from "../simbolo/Contador";
 
 //export const listAux: any[] = [];
 
@@ -186,5 +187,99 @@ export default class DeclaracionLista extends Instruccion {
             }
 
         }
+    }
+
+    getAST(anterior:string ): string {
+        let contador = Contador.getInstancia()
+        let resultado = ""  
+        if(this.valor == null ){
+            let nodoT = `n${contador.get()}`
+            let nodoTipo = `n${contador.get()}`
+            let nodoId = `n${contador.get()}`
+            let nodoCI = `n${contador.get()}`
+            let nodoCD = `n${contador.get()}`
+            let nodoIgual = `n${contador.get()}`
+            let nodoNew = `n${contador.get()}`
+            let nodoTipo2 = `n${contador.get()}`
+            let nodoCI2 = `n${contador.get()}`
+            let nodoExp1 = `n${contador.get()}`
+            let nodoCD2 = `n${contador.get()}`
+            let nodopc = `n${contador.get()}`
+            let nodoobtTipo1 = `n${contador.get()}`
+            let nodoobtId = `n${contador.get()}`
+            let nodoobtTipo2 = `n${contador.get()}`
+            resultado += `${nodoT}[label=\"DECARRAY\"];\n`
+            resultado += `${nodoTipo}[label=\"TIPODATO\"];\n`
+            resultado += `${nodoId}[label=\"ID\"];\n`
+            resultado += `${nodoCI}[label=\"[\"];\n`
+            resultado += `${nodoCD}[label=\"]\"];\n`
+            resultado += `${nodoIgual}[label=\"=\"];\n`
+            resultado += `${nodoNew}[label=\"NEW\"];\n`
+            resultado += `${nodoTipo2}[label=\"TIPODATO\"];\n`
+            resultado += `${nodoCI2}[label=\"[\"];\n`
+            resultado += `${nodoExp1}[label=\"EXPRESION\"];\n`
+            resultado += `${nodoCD2}[label=\"]\"];\n`
+            resultado += `${nodopc}[label=\";\"];\n`
+            resultado += `${nodoobtTipo1}[label=\"${this.tipoDato.getTipo()}\"];\n`
+            resultado += `${nodoobtId}[label=\"${this.identificador}\"];\n`
+            resultado += `${nodoobtTipo2}[label=\"${this.tipoDato.getTipo()}\"];\n`
+            resultado += `${anterior}->${nodoT};\n`
+            resultado += `${nodoT}->${nodoTipo};\n`
+            resultado += `${nodoT}->${nodoId};\n`
+            resultado += `${nodoT}->${nodoCI};\n`
+            resultado += `${nodoT}->${nodoCD};\n`
+            resultado += `${nodoT}->${nodoIgual};\n`
+            resultado += `${nodoT}->${nodoNew};\n`
+            resultado += `${nodoT}->${nodoTipo2};\n`
+            resultado += `${nodoT}->${nodoCI2};\n`
+            resultado += `${nodoT}->${nodoExp1};\n`
+            resultado += `${nodoT}->${nodoCD2};\n`
+            resultado += `${nodoT}->${nodopc};\n`
+            resultado += `${nodoTipo}->${nodoobtTipo1};\n`
+            resultado += `${nodoId}->${nodoobtId};\n`
+            resultado += `${nodoTipo2}->${nodoobtTipo2};\n`
+            resultado += this.lenght.getAST(nodoExp1)
+        }else{
+            let nodoT = `n${contador.get()}`
+            let nodoTipo = `n${contador.get()}`
+            let nodoId = `n${contador.get()}`
+            let nodoCI = `n${contador.get()}`
+            let nodoCD = `n${contador.get()}`
+            let nodoIgual = `n${contador.get()}`
+            let nodoCI2 = `n${contador.get()}`
+            let nodoExp1 = `n${contador.get()}`
+            let nodoCD2 = `n${contador.get()}`
+            let nodopc = `n${contador.get()}`
+            let nodoobtTipo = `n${contador.get()}`
+            let nodoobtId = `n${contador.get()}`
+            resultado += `${nodoT}[label=\"DECARRAY\"];\n`
+            resultado += `${nodoTipo}[label=\"TIPODATO\"];\n`
+            resultado += `${nodoId}[label=\"ID\"];\n`
+            resultado += `${nodoCI}[label=\"[\"];\n`
+            resultado += `${nodoCD}[label=\"]\"];\n`
+            resultado += `${nodoIgual}[label=\"=\"];\n`
+            resultado += `${nodoCI2}[label=\"[\"];\n`
+            resultado += `${nodoExp1}[label=\"EXPRESION\"];\n`
+            resultado += `${nodoCD2}[label=\"]\"];\n`
+            resultado += `${nodopc}[label=\";\"];\n`
+            resultado += `${nodoobtTipo}[label=\"${this.tipoDato.getTipo()}\"];\n`
+            resultado += `${nodoobtId}[label=\"${this.identificador}\"];\n`
+            resultado += `${anterior}->${nodoT};\n`
+            resultado += `${nodoT}->${nodoTipo};\n`
+            resultado += `${nodoT}->${nodoId};\n`
+            resultado += `${nodoT}->${nodoCI};\n`
+            resultado += `${nodoT}->${nodoCD};\n`
+            resultado += `${nodoT}->${nodoIgual};\n`
+            resultado += `${nodoT}->${nodoCI2};\n`
+            resultado += `${nodoT}->${nodoExp1};\n`
+            resultado += `${nodoT}->${nodoCD2};\n`
+            resultado += `${nodoT}->${nodopc};\n`
+            resultado += `${nodoTipo}->${nodoobtTipo};\n`
+            resultado += `${nodoId}->${nodoobtId};\n`
+            for(let i of this.valor){
+                resultado += i.getAST(nodoExp1)
+            }
+        }
+        return resultado
     }
 }

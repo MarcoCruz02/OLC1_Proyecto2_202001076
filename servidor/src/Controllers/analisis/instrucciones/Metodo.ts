@@ -20,7 +20,7 @@ export default class Metodo extends Instruccion{
     interpretar(arbol: Arbol, tabla: tablaSimbolo) {
         for(let i of this.instrucciones){
             let resultado = i.interpretar(arbol,tabla)
-            //falta recuperacion de errores
+            if (resultado instanceof Errores)  return resultado
             //falta return
         }
     }
@@ -59,11 +59,11 @@ export default class Metodo extends Instruccion{
             resultado += `${anterior}->${nodoLld};\n`
             resultado += `${nodoTipo}->${obtTip};\n`
             resultado += `${nodoId}->${obtId};\n`
-            for(let i of this.parametros){
+            /*for(let i of this.parametros.){
                 resultado += i.getAST(nodoParam)
-            }
-            for(let i of this.instrucciones){
-                resultado += i.getAST(nodoIns)
+            }*/
+            for(let j of this.instrucciones){
+                resultado += j.getAST(nodoIns)
             }
         }else{
             let nodoTipo = `n${contador.get()}`
