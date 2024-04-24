@@ -122,3 +122,42 @@ void metodo2(int localVar){
     cout<<"sera llamado por metodo 1"<<endl;
 }
 */
+
+/*
+EXECUTE main();
+
+void main(){
+    cout << "Archivo de prueba\n";
+    cout << "Si sale compi1" << endl;
+
+    cout << "torres" << endl;
+
+    torres(3, 'A', 'C', 'B');
+}
+
+void torres(int n, char origen, char destino, char auxiliar){
+   if(n>0){
+        torres(n-1, origen, auxiliar, destino);
+        cout << "Mueve un disco de " + origen + " a " + destino<< endl;
+        torres(n-1, auxiliar, destino, origen);
+   }    
+}
+
+
+// Salida de archivo de prueba
+
+/*
+Archivo de prueba
+Si sale compi1
+
+125
+torres
+Mueve un disco de A a C
+Mueve un disco de A a B
+Mueve un disco de C a B
+Mueve un disco de A a C
+Mueve un disco de B a A
+Mueve un disco de B a C
+Mueve un disco de A a C
+
+*/

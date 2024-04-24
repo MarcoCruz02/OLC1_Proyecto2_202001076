@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react"
 import './App.css';
 import Editor from '@monaco-editor/react';
 import { Graphviz } from 'graphviz-react';
-import AST from "./AST";
 
 
 function App() {
@@ -37,7 +36,7 @@ function App() {
         console.log(valorAst)
         // Realizar acciones basadas en los datos
       })
-      .catch(error => console.error('Error al obtener JSON:', error));           // Manejar errores
+      .catch(error => console.error('Error al obtener JSON AST:', error));           // Manejar errores
 
     /*fetch('http://localhost:4000/getAST', {
     })
@@ -62,26 +61,6 @@ function App() {
     nuevaVentana.document.close();*/
   };
 
-  const generarAst = () => {
-    mostrarAST();
-    const mostrarGrafoAST = `
-      <html>
-        <head>
-          <title>AST</title>
-        </head>
-        <body>
-          <div>
-            ${valorAst && <Graphviz dot={valorAst} />}
-          </div>
-        </body>
-      </html>
-    `;
-    //console.log(globaljsonData); 
-    const nuevaVentana = window.open("", "_blank");
-    nuevaVentana.document.open();
-    nuevaVentana.document.write(mostrarGrafoAST);
-    nuevaVentana.document.close();
-  };
 
   const mostrarHTMLErrores = () => {
     reporteErrores();
@@ -158,7 +137,7 @@ function App() {
         consolaRef.current.setValue(data.Respuesta);
       })
       .catch((error) => {
-        alert("Ocurrio un Error")
+        alert("Ocurrio un Error al Interpretar")
         console.error('Error:', error);
       });
   }
@@ -173,7 +152,7 @@ function App() {
     reader.readAsText(file);
   }
 
-  const OpenNewWindowButton = () => {
+  /*const OpenNewWindowButton = () => {
     const handleClick = () => {
       // Function to handle button click
       const newWindow = window.open("", '_blank'); // Replace with desired URL
@@ -186,7 +165,7 @@ function App() {
       <input type="button" value="Op" id="btnCargar" className="btn btn-outline-secondary" onClick={handleClick}></input>
       //<button onClick={handleClick}>Abrir nueva ventana</button>
     );
-  };
+  };*/
 
   const GenAst = () => {
     return(
@@ -205,7 +184,7 @@ function App() {
     <div className="App">
       <div className="background-color: #F0F8FF p-2 text-white bg-opacity-75">
         <div className='text-center style="color: #F8F9FA;'>
-          <h1>Proyecto 2 - OLC1</h1>
+          <h1>Proyecto 2 - OLC1 - CompiScript+</h1>
         </div>
         <br></br>
         <div className='text-center'>
@@ -237,7 +216,9 @@ function App() {
           </div>
         </div>
       </div>
-      <h3>Grafico Ast</h3>
+      <div className='text-center style="color: white;'>
+        <h3>Grafico Ast</h3>
+      </div>
       <div className="containerAst">
         <GenAst />
       </div>

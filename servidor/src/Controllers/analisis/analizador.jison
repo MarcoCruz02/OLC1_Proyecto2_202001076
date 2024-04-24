@@ -1,5 +1,7 @@
 %{
 // codigo de JS si fuese necesario
+const Errores = require('./excepciones/Errores')
+
 const Tipo = require('./simbolo/Tipo')
 const Nativo = require('./expresiones/Nativo')
 const Aritmeticas = require('./expresiones/Aritmeticas')
@@ -122,6 +124,7 @@ COMMENTML   [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]
 
 // simbolo de fin de cadena
 <<EOF>>                 return "EOF"
+.                { return new Errores.default("Lexico",`Token: ${yytext}, no reconocido como parte del lenguaje`, yylloc.first_line, yylloc.first_column); }
 
 
 %{
@@ -161,7 +164,7 @@ INSTRUCCION : DECVARIABLE PUNTOCOMA            {$$=$1;}
             | ASIGNLISTA PUNTOCOMA             {$$=$1;}
             | DECARRAY PUNTOCOMA               {$$=$1;}
             | SENTWHILE                        {$$=$1;}
-            | SENTDOWHILE                      {$$=$1;}
+            | SENTDOWHILE PUNTOCOMA            {$$=$1;}
             | SENTRETURN                       {$$=$1;}
             | SENTBREAK                        {$$=$1;}
             | SENTFOR                          {$$=$1;}
@@ -238,7 +241,7 @@ METODO : TIPODATO ID PARI PARAMS PARD LLAVEI INSTRUCCIONES LLAVED  {$$ = new Met
 ;
 
 //como no vienen parametros por default en funciones no fue necesario hacer una clase params solo pasar tupla tipo,id
-PARAMS : PARAMS COMA TIPODATO ID      {$1.push({tipo:$3, id:$4}); $$=$1;} 
+PARAMS : PARAMS COMA TIPODATO ID      {$1.push({tipo:$3, id:[$4]}); $$=$1;} 
        | TIPODATO ID                  {$$ = [{tipo: $1 , id: [$2]}];} 
 ;
 
@@ -261,7 +264,14 @@ EXPRESION : ARITMETICAS                               {$$ = $1;}
           | TERNARIO                                  {$$ = $1;}
           | ENTERO                                    {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.ENTERO), $1, @1.first_line, @1.first_column );}
           | DECIMAL                                   {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.DECIMAL), $1, @1.first_line, @1.first_column );}
-          | CADENA                                    {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.CADENA), $1, @1.first_line, @1.first_column );}
+          | CADENA                                    { var texto = $1.substr(0,$1.length);
+                                                        texto = texto.replace(/\\n/g, "\n");
+                                                        texto = texto.replace(/\\\\/g, "\\");
+                                                        texto = texto.replace(/\\\"/g,"\"");
+                                                        texto = texto.replace(/\\r/g, "\r");
+                                                        texto = texto.replace(/\\t/g, "\t");
+                                                        texto = texto.replace(/\\\'/g, "'"); 
+                                                        $$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.CADENA), texto, @1.first_line, @1.first_column );}
           | CARACTER                                  {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.CARACTER), $1, @1.first_line, @1.first_column );}
           | TKTRUE                                    {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.BOOL), true, @1.first_line, @1.first_column );}
           | TKFALSE                                   {$$ = new Nativo.default(new Tipo.default(Tipo.tipoDato.BOOL), false, @1.first_line, @1.first_column );}

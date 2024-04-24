@@ -30,7 +30,7 @@ class controller {
             let parser = require('./analisis/analizador')
             let ast = new Arbol(parser.parse(req.body.entrada))
             let tabla = new tablaSimbolo()
-            tabla.setNombre("Ejemplo 1")
+            tabla.setNombre("Proyecto 2")
             ast.setTablaGlobal(tabla)
             ast.setConsola("")
             let execute = null;
